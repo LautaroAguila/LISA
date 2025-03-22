@@ -8,9 +8,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const StockList = () => {
     const [productos, setProductos] = useState([]);
+    const [selectedProducts, setSelectedProducts] = useState(new Set()); // Estado para productos seleccionados
     const [orden, setOrden] = useState({ campo: "nombre", asc: true });
     const [tipoFiltro, setTipoFiltro] = useState("");
-    const [loading, setLoading] = useState(true); // 🔄 Estado de carga
+    const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
     const db = getFirestore(app);
@@ -30,7 +31,7 @@ const StockList = () => {
             } catch (error) {
                 console.error("❌ Error al obtener productos:", error);
             } finally {
-                setLoading(false); // 🔄 Desactivar spinner cuando termine la carga
+                setLoading(false);
             }
         };
 
@@ -44,17 +45,31 @@ const StockList = () => {
         }));
     };
 
-    const handleEliminar = async (id) => {
-        const confirmar = window.confirm("¿Estás seguro de que quieres eliminar este producto?");
+    const handleToggleSelect = (id) => {
+        setSelectedProducts((prevSelected) => {
+            const newSelected = new Set(prevSelected);
+            newSelected.has(id) ? newSelected.delete(id) : newSelected.add(id);
+            return newSelected;
+        });
+    };
+
+    const handleEliminarSeleccionados = async () => {
+        if (selectedProducts.size === 0) {
+            alert("No hay productos seleccionados.");
+            return;
+        }
+
+        const confirmar = window.confirm(`¿Eliminar ${selectedProducts.size} productos?`);
         if (!confirmar) return;
 
         const user = auth.currentUser;
         if (!user) return;
 
-        await deleteDoc(doc(db, "users", user.uid, "productos", id));
+        await Promise.all([...selectedProducts].map(id => deleteDoc(doc(db, "users", user.uid, "productos", id))));
 
-        setProductos((prevProductos) => prevProductos.filter(prod => prod.id !== id));
-        alert("Producto eliminado correctamente.");
+        setProductos((prevProductos) => prevProductos.filter(prod => !selectedProducts.has(prod.id)));
+        setSelectedProducts(new Set()); // Limpiar selección
+        alert("Productos eliminados correctamente.");
     };
 
     const handleBack = () => {
@@ -69,10 +84,10 @@ const StockList = () => {
             return 0;
         });
 
-    if (loading) return <Spinner />; // 🔄 Muestra el Spinner mientras carga
+    if (loading) return <Spinner />;
 
     return (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh", backgroundColor: "#2c2c2c", color: "white", padding: "20px" }}>
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", backgroundColor: "#2c2c2c", color: "white", padding: "20px" }}>
             <div className="container">
                 <button className="btn btn-secondary position-absolute top-0 start-0 m-3" onClick={handleBack}>
                     Volver
@@ -91,6 +106,13 @@ const StockList = () => {
                     </select>
                 </div>
 
+                {/* Botón de eliminar seleccionados */}
+                {selectedProducts.size > 0 && (
+                    <button className="btn btn-danger mb-3" onClick={handleEliminarSeleccionados}>
+                        Eliminar seleccionados ({selectedProducts.size})
+                    </button>
+                )}
+
                 {/* Tabla de productos */}
                 {productos.length === 0 ? (
                     <p className="text-center">No hay productos en stock.</p>
@@ -98,6 +120,19 @@ const StockList = () => {
                     <table className="table table-dark table-hover">
                         <thead>
                             <tr>
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setSelectedProducts(new Set(productosFiltrados.map(prod => prod.id)));
+                                            } else {
+                                                setSelectedProducts(new Set());
+                                            }
+                                        }}
+                                        checked={selectedProducts.size === productosFiltrados.length && productosFiltrados.length > 0}
+                                    />
+                                </th>
                                 <th onClick={() => handleOrdenar("nombre")} style={{ cursor: "pointer" }}>
                                     Producto {orden.campo === "nombre" ? (orden.asc ? "↑" : "↓") : ""}
                                 </th>
@@ -113,12 +148,19 @@ const StockList = () => {
                         <tbody>
                             {productosFiltrados.map(producto => (
                                 <tr key={producto.id}>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedProducts.has(producto.id)}
+                                            onChange={() => handleToggleSelect(producto.id)}
+                                        />
+                                    </td>
                                     <td>{producto.nombre}</td>
                                     <td>{producto.tipo}</td>
                                     <td>{producto.cantidad}</td>
                                     <td>
-                                        <button className="btn btn-danger btn-sm" onClick={() => handleEliminar(producto.id)}>
-                                            Eliminar
+                                        <button className="btn btn-danger btn-sm" onClick={() => handleToggleSelect(producto.id)}>
+                                            {selectedProducts.has(producto.id) ? "Deseleccionar" : "Seleccionar"}
                                         </button>
                                     </td>
                                 </tr>

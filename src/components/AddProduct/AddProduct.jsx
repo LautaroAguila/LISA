@@ -37,6 +37,16 @@ const AddProduct = () => {
         fetchTipos();
     }, []);
 
+    useEffect(() => {
+        if (productosSugeridos.length > 0) {
+            const timeoutId = setTimeout(() => {
+                setProductosSugeridos([]);
+            }, 2500); // 🔥 Ocultar después de 5 segundos
+
+            return () => clearTimeout(timeoutId); // 🔄 Limpiar timeout si cambia la búsqueda
+        }
+    }, [productosSugeridos]);
+
     const fetchSugerencias = async () => {
         const user = auth.currentUser;
         if (!user) return;
@@ -129,7 +139,7 @@ const AddProduct = () => {
     };
 
     return (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh", backgroundColor: "#2c2c2c" }}>
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", backgroundColor: "#2c2c2c" }}>
             <div className="container d-flex flex-column align-items-center">
                 <button className="btn btn-secondary position-absolute top-0 start-0 m-3" onClick={() => navigate(-1)}>
                     Volver
