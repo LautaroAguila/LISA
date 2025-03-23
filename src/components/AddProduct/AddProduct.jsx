@@ -17,7 +17,7 @@ const AddProduct = () => {
         fecha_ingreso: "",
         precio_ingreso: "",
         local_compra: "",
-        cantidad: "",
+        cantidad: "0",
         stock_recomendable: "",
     });
 
@@ -195,7 +195,16 @@ const AddProduct = () => {
                                     </div>
                                     <div className="mb-3">
                                         <label className="form-label">Cantidad Comprada:</label>
-                                        <input type="number" className="form-control" name="cantidad" value={formData.cantidad} onChange={handleChange} min="1" required />
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="cantidad"
+                                            value={formData.cantidad}
+                                            onChange={handleChange}
+                                            min="0"  // ✅ Ahora permite cantidad 0
+                                            required
+                                        />
+
                                     </div>
                                 </>
                             ) : (
@@ -230,7 +239,16 @@ const AddProduct = () => {
                                     </div>
                                     <div className="mb-3">
                                         <label className="form-label">Cantidad:</label>
-                                        <input type="number" className="form-control" name="cantidad" value={formData.cantidad} onChange={handleChange} min="1" required />
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="cantidad"
+                                            value={formData.cantidad}
+                                            onChange={handleChange}
+                                            min="0"  // ✅ Ahora permite cantidad 0
+                                            required
+                                        />
+
                                     </div>
                                     <div className="mb-3">
                                         <label className="form-label">Stock Recomendable:</label>

@@ -8,9 +8,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const StockList = () => {
     const [productos, setProductos] = useState([]);
-    const [selectedProducts, setSelectedProducts] = useState(new Set()); // Estado para productos seleccionados
+    const [selectedProducts, setSelectedProducts] = useState(new Set());
     const [orden, setOrden] = useState({ campo: "nombre", asc: true });
     const [tipoFiltro, setTipoFiltro] = useState("");
+    const [searchTerm, setSearchTerm] = useState(""); // 🔍 Estado para búsqueda
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
@@ -68,7 +69,7 @@ const StockList = () => {
         await Promise.all([...selectedProducts].map(id => deleteDoc(doc(db, "users", user.uid, "productos", id))));
 
         setProductos((prevProductos) => prevProductos.filter(prod => !selectedProducts.has(prod.id)));
-        setSelectedProducts(new Set()); // Limpiar selección
+        setSelectedProducts(new Set());
         alert("Productos eliminados correctamente.");
     };
 
@@ -77,7 +78,10 @@ const StockList = () => {
     };
 
     const productosFiltrados = productos
-        .filter(prod => tipoFiltro === "" || prod.tipo === tipoFiltro)
+        .filter(prod => 
+            (tipoFiltro === "" || prod.tipo === tipoFiltro) &&
+            (searchTerm === "" || prod.nombre.toLowerCase().includes(searchTerm.toLowerCase())) // 🔍 Filtro por nombre
+        )
         .sort((a, b) => {
             if (a[orden.campo] < b[orden.campo]) return orden.asc ? -1 : 1;
             if (a[orden.campo] > b[orden.campo]) return orden.asc ? 1 : -1;
@@ -94,6 +98,18 @@ const StockList = () => {
                 </button>
 
                 <h2 className="mb-4 text-center">Lista de Stock</h2>
+
+                {/* 🔍 Campo de búsqueda por nombre */}
+                <div className="mb-3">
+                    <label className="form-label">Buscar producto:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Escribe el nombre..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
 
                 {/* Filtro por tipo */}
                 <div className="mb-3">
@@ -114,7 +130,7 @@ const StockList = () => {
                 )}
 
                 {/* Tabla de productos */}
-                {productos.length === 0 ? (
+                {productosFiltrados.length === 0 ? (
                     <p className="text-center">No hay productos en stock.</p>
                 ) : (
                     <table className="table table-dark table-hover">
