@@ -2,6 +2,7 @@ import { useState } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Link } from "react-router-dom";
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -74,9 +75,7 @@ const Register = () => {
                 </form>
 
                 <div className="text-center mt-3">
-                    <p>
-                        ¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a>
-                    </p>
+                    <p>¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
                 </div>
             </div>
         </div>
