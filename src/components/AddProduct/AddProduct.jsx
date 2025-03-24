@@ -17,7 +17,7 @@ const AddProduct = () => {
         fecha_ingreso: "",
         precio_ingreso: "",
         local_compra: "",
-        cantidad: "",
+        cantidad: "0",
         stock_recomendable: "",
     });
 
@@ -36,6 +36,16 @@ const AddProduct = () => {
     useEffect(() => {
         fetchTipos();
     }, []);
+
+    useEffect(() => {
+        if (productosSugeridos.length > 0) {
+            const timeoutId = setTimeout(() => {
+                setProductosSugeridos([]);
+            }, 2500); // 🔥 Ocultar después de 5 segundos
+
+            return () => clearTimeout(timeoutId); // 🔄 Limpiar timeout si cambia la búsqueda
+        }
+    }, [productosSugeridos]);
 
     const fetchSugerencias = async () => {
         const user = auth.currentUser;
@@ -129,7 +139,7 @@ const AddProduct = () => {
     };
 
     return (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh", backgroundColor: "#2c2c2c" }}>
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", backgroundColor: "#2c2c2c" }}>
             <div className="container d-flex flex-column align-items-center">
                 <button className="btn btn-secondary position-absolute top-0 start-0 m-3" onClick={() => navigate(-1)}>
                     Volver
@@ -185,7 +195,16 @@ const AddProduct = () => {
                                     </div>
                                     <div className="mb-3">
                                         <label className="form-label">Cantidad Comprada:</label>
-                                        <input type="number" className="form-control" name="cantidad" value={formData.cantidad} onChange={handleChange} min="1" required />
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="cantidad"
+                                            value={formData.cantidad}
+                                            onChange={handleChange}
+                                            min="0"  // ✅ Ahora permite cantidad 0
+                                            required
+                                        />
+
                                     </div>
                                 </>
                             ) : (
@@ -220,7 +239,16 @@ const AddProduct = () => {
                                     </div>
                                     <div className="mb-3">
                                         <label className="form-label">Cantidad:</label>
-                                        <input type="number" className="form-control" name="cantidad" value={formData.cantidad} onChange={handleChange} min="1" required />
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="cantidad"
+                                            value={formData.cantidad}
+                                            onChange={handleChange}
+                                            min="0"  // ✅ Ahora permite cantidad 0
+                                            required
+                                        />
+
                                     </div>
                                     <div className="mb-3">
                                         <label className="form-label">Stock Recomendable:</label>

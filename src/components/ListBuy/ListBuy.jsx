@@ -85,7 +85,7 @@ const ListBuy = () => {
     if (loading) return <Spinner />;
 
     return (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh", backgroundColor: "#2c2c2c", color: "white", padding: "20px" }}>
+        <div className="d-flex justify-content-center align-items-center" style={{minHeight: "100vh", backgroundColor: "#2c2c2c", color: "white", padding: "20px" }}>
             <div className="container">
                 <button className="btn btn-secondary position-absolute top-0 start-0 m-3" onClick={() => navigate(-1)}>
                     Volver
