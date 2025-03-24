@@ -104,35 +104,36 @@ const StockList = () => {
 
                 <h2 className="mb-4 text-center">Lista de Stock</h2>
 
-                {/* 🔍 Campo de búsqueda */}
-                <div className="mb-3">
-                    <label className="form-label">Buscar producto:</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Escribe el nombre..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                {/* Filtros */}
+                <div className="row mb-3">
+                    <div className="col-md-6">
+                        <label className="form-label text-light">🔍 Buscar producto:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Escribe el nombre..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className="col-md-6">
+                        <label className="form-label text-light">📌 Filtrar por tipo:</label>
+                        <select className="form-select" value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)}>
+                            <option value="">Todos</option>
+                            {[...new Set(productos.map(prod => prod.tipo))].map(tipo => (
+                                <option key={tipo} value={tipo}>{tipo}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
-                {/* Filtro por tipo */}
-                <div className="mb-3">
-                    <label className="form-label">Filtrar por tipo:</label>
-                    <select className="form-control" value={tipoFiltro} onChange={(e) => setTipoFiltro(e.target.value)}>
-                        <option value="">Todos</option>
-                        {[...new Set(productos.map(prod => prod.tipo))].map(tipo => (
-                            <option key={tipo} value={tipo}>{tipo}</option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Tabla agrupada */}
+                {/* Tabla */}
                 {Object.keys(productosAgrupados).map(tipo => (
-                    <div key={tipo}>
-                        <h3 className="text-center mt-4">{tipo}</h3>
-                        <table className="table table-dark table-hover">
-                            <thead>
+                <div key={tipo} className="mb-4">
+                    <h3 className="text-center text-warning">{tipo}</h3>
+                    <div className="table-responsive">
+                        <table className="table table-dark table-striped table-bordered text-center">
+                            <thead className="table-light text-dark">
                                 <tr>
                                     <th>
                                         <input
@@ -181,6 +182,7 @@ const StockList = () => {
                             </tbody>
                         </table>
                     </div>
+                </div>
                 ))}
 
                 {/* ✅ Modal de edición */}
@@ -198,3 +200,6 @@ const StockList = () => {
 };
 
 export default StockList;
+
+
+

@@ -15,20 +15,15 @@ const ListBuy = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-
         const fetchData = async () => {
             try {
                 const user = auth.currentUser;
-                if (!user) {
-                    return;
-                }
+                if (!user) return;
 
                 const productosRef = collection(db, "users", user.uid, "productos");
                 const querySnapshot = await getDocs(productosRef);
                 const listaProductos = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-
-                
                 const productosFiltrados = listaProductos.filter(prod => 
                     (prod.stock_actual ?? prod.cantidad) < prod.stock_recomendable
                 );
@@ -36,7 +31,7 @@ const ListBuy = () => {
                 setProductos(productosFiltrados);
             } catch (error) {
                 console.error("❌ Error al obtener productos:", error);
-            }finally {
+            } finally {
                 setLoading(false);
             }
         };
@@ -44,7 +39,6 @@ const ListBuy = () => {
         fetchData();
     }, [auth]);
 
-    
     const productosPorTipo = productos.reduce((acc, producto) => {
         const tipo = producto.tipo || "Sin Categoría"; 
         if (!acc[tipo]) acc[tipo] = [];
@@ -52,16 +46,14 @@ const ListBuy = () => {
         return acc;
     }, {});
 
-
     const descargarPDF = () => {
         const doc = new jsPDF();
         doc.text("Lista de Productos a Comprar", 14, 10);
 
-        let startY = 20; 
-
+        let startY = 20;
         Object.keys(productosPorTipo).forEach((tipo) => {
             doc.text(tipo, 14, startY);
-            startY += 10; 
+            startY += 10;
 
             autoTable(doc, {
                 startY,
@@ -71,12 +63,12 @@ const ListBuy = () => {
                     producto.stock_actual ?? producto.cantidad, 
                     producto.stock_recomendable
                 ]),
-                theme: "grid", 
-                styles: { fontSize: 10 }, 
-                margin: { left: 14, right: 14 }, 
+                theme: "grid",
+                styles: { fontSize: 10 },
+                margin: { left: 14, right: 14 },
             });
 
-            startY = doc.lastAutoTable.finalY + 10; 
+            startY = doc.lastAutoTable.finalY + 10;
         });
 
         doc.save("Lista_Compra.pdf");
@@ -85,23 +77,24 @@ const ListBuy = () => {
     if (loading) return <Spinner />;
 
     return (
-        <div className="d-flex justify-content-center align-items-center" style={{minHeight: "100vh", backgroundColor: "#2c2c2c", color: "white", padding: "20px" }}>
-            <div className="container">
+        <div className="d-flex justify-content-center align-items-center"
+            style={{ minHeight: "100vh", backgroundColor: "#2c2c2c", color: "white", padding: "20px" }}>
+            <div className="container bg-dark p-4 rounded shadow-lg">
                 <button className="btn btn-secondary position-absolute top-0 start-0 m-3" onClick={() => navigate(-1)}>
                     Volver
                 </button>
 
-                <h2 className="mb-4 text-center">Lista de Productos a Comprar</h2>
+                <h2 className="mb-4 text-center text-light">Lista de Productos a Comprar</h2>
 
                 {productos.length === 0 ? (
-                    <p className="text-center">No hay productos por comprar.</p>
+                    <p className="text-center text-warning">No hay productos por comprar.</p>
                 ) : (
                     <div className="table-responsive">
                         {Object.keys(productosPorTipo).map((tipo) => (
                             <div key={tipo} className="mb-4">
                                 <h3 className="text-center text-warning">{tipo}</h3>
-                                <table className="table table-dark table-hover">
-                                    <thead>
+                                <table className="table table-dark table-striped table-hover shadow">
+                                    <thead className="table-primary text-dark">
                                         <tr>
                                             <th>Producto</th>
                                             <th>Cantidad Actual</th>
@@ -123,10 +116,9 @@ const ListBuy = () => {
                     </div>
                 )}
 
-                {/* Botón para descargar el PDF */}
                 {productos.length > 0 && (
-                    <div className="text-center mb-3">
-                        <button className="btn btn-primary" onClick={descargarPDF}>
+                    <div className="text-center">
+                        <button className="btn btn-primary btn-lg shadow" onClick={descargarPDF}>
                             Descargar PDF
                         </button>
                     </div>
