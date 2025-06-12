@@ -1,2 +1,24 @@
+# Node
 node_modules/
-*.local
+dist/
+build/
+
+# Environment variables
+.env
+.env.* # si usás .env.local o .env.development
+
+# Firebase
+firebase-debug.log
+.firebase/
+serviceAccount*.json
+
+# Functions (si usás Firebase Cloud Functions)
+functions/node_modules/
+functions/.env
+functions/serviceAccount*.json
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store

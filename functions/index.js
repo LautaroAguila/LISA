@@ -1,9 +1,9 @@
 const functions = require("firebase-functions");
 const cors = require("cors")({ origin: true }); // habilita CORS
 const { MercadoPagoConfig, Preference } = require("mercadopago");
+require("dotenv").config();
 
-const client = new MercadoPagoConfig({ accessToken: 
-  "APP_USR-6566159949744482-052615-c04fd1dd23762c0c2e5d1162bae3fdb4-1045338675" });
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN, });
 
 exports.createSubscription = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {

@@ -5,7 +5,7 @@ import { auth } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
 import { Wallet, initMercadoPago } from "@mercadopago/sdk-react";
 
-initMercadoPago("APP_USR-b68ef817-1404-4109-af68-e4470a7d4a01"); // Tu public key
+initMercadoPago("APP_USR-5f6e0283-b66c-4567-b8bb-c168e23741b4"); // Tu public key
 
 const Suscribirse = () => {
   const [user, loading] = useAuthState(auth);
