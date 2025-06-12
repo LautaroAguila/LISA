@@ -1,85 +1,120 @@
-import { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import React, { useState } from "react";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db , auth} from "../../firebase/config";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { Link } from "react-router-dom";
 
 const Register = () => {
-    const [formData, setFormData] = useState({
-        email: "",
-        password: "",
-    });
-    const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
-    const auth = getAuth();
+  const [email, setEmail] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmarPassword, setConfirmarPassword] = useState("");
+  const [error, setError] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+  const passwordSegura = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setMensaje("");
 
-        try {
-            await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-            alert("Cuenta creada exitosamente.");
-            navigate("/login");
-        } catch (error) {
-            setError("Error al registrar usuario. Verifica los datos.");
-        }
-    };
+    if (!passwordSegura.test(password)) {
+      setError("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.");
+      return;
+    }
 
-    return (
-        <div className="d-flex justify-content-center align-items-center vh-100 bg-dark">
-            <div className="card p-4 shadow-lg w-50">
-                <h2 className="text-center mb-4">Registrarse</h2>
+    if (password !== confirmarPassword) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
 
-                {error && <div className="alert alert-danger">{error}</div>}
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label className="form-label">Correo Electrónico:</label>
-                        <input
-                            type="email"
-                            className="form-control"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
+      await sendEmailVerification(cred.user);
 
-                    <div className="mb-3">
-                        <label className="form-label">Contraseña:</label>
-                        <div className="d-flex align-items-center position-relative">
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                className="form-control pe-4"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                minLength="6"
-                                required
-                            />
-                            <i 
-                                className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} position-absolute`} 
-                                style={{ right: 10, cursor: "pointer", fontSize: "1.2rem" }} 
-                                onClick={() => setShowPassword(!showPassword)}
-                            />
-                        </div>
-                    </div>
+      await setDoc(doc(db, "users", cred.user.uid), {
+        nombre,
+        apellido,
+        email,
+        telefono: telefono || null,
+        direccion: direccion || null,
+        rol: "usuario",
+        verificado: false, // se puede actualizar luego al verificar
+        plan: "gratis",
+        fechaRegistro: new Date().toISOString(),
+        stock_bajo_umbral: 0
+      });
 
-                    <button type="submit" className="btn btn-primary w-100">Registrarse</button>
-                </form>
+      setMensaje("Registro exitoso. Se envió un correo de verificación. Verifica tu cuenta antes de iniciar sesión.");
+      setEmail("");
+      setNombre("");
+      setApellido("");
+      setTelefono("");
+      setDireccion("");
+      setPassword("");
+      setConfirmarPassword("");
+    } catch (err) {
+      console.error(err);
+      if (err.code === "auth/email-already-in-use") {
+        setError("El correo ya está registrado.");
+      } else {
+        setError("Ocurrió un error al registrarse.");
+      }
+    }
+  };
 
-                <div className="text-center mt-3">
-                    <p>¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
-                </div>
-            </div>
+  return (
+    <div className="container mt-5" style={{ maxWidth: "500px" }}>
+      <h2>📝 Crear Cuenta</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label>Nombre</label>
+          <input type="text" className="form-control" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
         </div>
-    );
+        <div className="mb-3">
+          <label>Apellido</label>
+          <input type="text" className="form-control" value={apellido} onChange={(e) => setApellido(e.target.value)} required />
+        </div>
+        <div className="mb-3">
+          <label>Correo Electrónico</label>
+          <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+        <div className="mb-3">
+          <label>Teléfono </label>
+          <input type="tel" className="form-control" value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
+        </div>
+        <div className="mb-3">
+          <label>Dirección <small className="text-muted">(opcional)</small></label>
+          <input type="text" className="form-control" value={direccion} onChange={(e) => setDireccion(e.target.value)} />
+        </div>
+        <div className="mb-3">
+          <label>Contraseña</label>
+          <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <small className="text-muted">
+            Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo.
+          </small>
+        </div>
+        <div className="mb-3">
+          <label>Confirmar Contraseña</label>
+          <input type="password" className="form-control" value={confirmarPassword} onChange={(e) => setConfirmarPassword(e.target.value)} required />
+        </div>
+
+        {error && <div className="alert alert-danger">{error}</div>}
+        {mensaje && <div className="alert alert-success">{mensaje}</div>}
+
+        <button type="submit" className="btn btn-primary w-100">Registrarse</button>
+      </form>
+      <button className="btn btn-link mt-3 w-100" onClick={() => navigate("/login")} style={{ color: "var(--color-primario)" }}>
+        ¿Ya tenes cuenta? Iniciar sesion.
+      </button>
+    </div>
+  );
 };
 
 export default Register;

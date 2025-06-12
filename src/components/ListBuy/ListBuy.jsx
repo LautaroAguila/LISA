@@ -7,6 +7,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Spinner from "../../components/Spinner/Spinner";
+import NavBar from "../NavBar/NavBar";
 
 const ListBuy = () => {
     const [productos, setProductos] = useState([]);
@@ -77,54 +78,57 @@ const ListBuy = () => {
     if (loading) return <Spinner />;
 
     return (
-        <div className="d-flex justify-content-center align-items-center"
-            style={{ minHeight: "100vh", backgroundColor: "#2c2c2c", color: "white", padding: "20px" }}>
-            <div className="container bg-dark p-4 rounded shadow-lg">
-                <button className="btn btn-secondary position-absolute top-0 start-0 m-3" onClick={() => navigate(-1)}>
-                    Volver
-                </button>
-
-                <h2 className="mb-4 text-center text-light">Lista de Productos a Comprar</h2>
+        <>
+        <NavBar/>
+        <div className="d-flex justify-content-center align-items-start" style={{ minHeight: "100vh", paddingTop: "40px", paddingBottom: "40px" }}>
+            <div className="container card-container">
+                <h2 className="text-center section-title">
+                🛒 Lista de Productos a Comprar
+                </h2>
 
                 {productos.length === 0 ? (
-                    <p className="text-center text-warning">No hay productos por comprar.</p>
+                <p className="text-center fs-5 mt-4 text-muted">No hay productos por comprar.</p>
                 ) : (
-                    <div className="table-responsive">
-                        {Object.keys(productosPorTipo).map((tipo) => (
-                            <div key={tipo} className="mb-4">
-                                <h3 className="text-center text-warning">{tipo}</h3>
-                                <table className="table table-dark table-striped table-hover shadow">
-                                    <thead className="table-primary text-dark">
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th>Cantidad Actual</th>
-                                            <th>Stock Recomendado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {productosPorTipo[tipo].map((producto) => (
-                                            <tr key={producto.id}>
-                                                <td>{producto.nombre}</td>
-                                                <td>{producto.stock_actual ?? producto.cantidad}</td>
-                                                <td>{producto.stock_recomendable}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ))}
+                <div className="table-responsive">
+                    {Object.keys(productosPorTipo).map((tipo) => (
+                    <div key={tipo} className="mb-5">
+                        <h4 className="text-center section-subtitle border-bottom pb-2 mb-3">
+                        {tipo}
+                        </h4>
+                        <table className="table table-light table-hover rounded overflow-hidden">
+                        <thead className="table-dark">
+                            <tr>
+                            <th>🧾 Producto</th>
+                            <th>📦 Cantidad Actual</th>
+                            <th>🎯 Stock Recomendado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {productosPorTipo[tipo].map((producto) => (
+                            <tr key={producto.id}>
+                                <td>{producto.nombre}</td>
+                                <td>{producto.stock_actual ?? producto.cantidad}</td>
+                                <td>{producto.stock_recomendable}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                        </table>
                     </div>
+                    ))}
+                </div>
                 )}
 
                 {productos.length > 0 && (
-                    <div className="text-center">
-                        <button className="btn btn-primary btn-lg shadow" onClick={descargarPDF}>
-                            Descargar PDF
-                        </button>
-                    </div>
+                <div className="text-center mt-4">
+                    <button className="btn btn-success btn-lg shadow">
+                    📥 Descargar PDF
+                    </button>
+                </div>
                 )}
             </div>
         </div>
+
+        </>
     );
 };
 
