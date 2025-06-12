@@ -4,7 +4,7 @@ import { auth } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
 import { Wallet, initMercadoPago } from "@mercadopago/sdk-react";
 import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
-import NavBar from "../components/NavBar"; // Opcional
+import NavBar from "../components/NavBar/NavBar"; // Opcional
 
 initMercadoPago("APP_USR-5f6e0283-b66c-4567-b8bb-c168e23741b4");
 
