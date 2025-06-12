@@ -23,7 +23,7 @@ const PagoFallido = () => {
                 <Button
                   variant="outline-danger"
                   className="mt-4"
-                  onClick={() => navigate("/suscribirse")}
+                  onClick={() => navigate("/planes")}
                 >
                   Reintentar Pago
                 </Button>
