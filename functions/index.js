@@ -22,9 +22,9 @@ exports.createSubscription = functions.https.onRequest((req, res) => {
           ],
           payer: { email },
           back_urls: {
-            success: "https://www.google.com/?hl=es",
-            failure: "https://www.youtube.com/",
-            pending: "http://localhost:5173/pago-pendiente",
+            success: "https://lisa-gyni.vercel.app/pago-exitoso",
+            failure: "https://lisa-gyni.vercel.app/pago-fallido",
+            pending: "https://lisa-gyni.vercel.app/pago-pendiente",
           },
           auto_return: "approved",
         },

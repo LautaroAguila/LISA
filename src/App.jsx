@@ -61,9 +61,9 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/recuperar-contra" element={<RecuperarContra />} />
 
-        <Route path="/pago-exitoso" element={<PagoExitoso />} />
-        <Route path="/pago-fallido" element={<PagoFallido />} />
-        <Route path="/pago-pendiente" element={<PagoPendiente />} />
+        <Route path="/pago-exitoso" element={userAuth ?<PagoExitoso />: <Navigate to="/login" />} />
+        <Route path="/pago-fallido" element={userAuth ?<PagoFallido />: <Navigate to="/login" />} />
+        <Route path="/pago-pendiente" element={userAuth ?<PagoPendiente />: <Navigate to="/login" />} />
 
         <Route path="/planes" element={<Suscribirse />} />
 
