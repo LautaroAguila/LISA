@@ -24,8 +24,8 @@ const NavBar = () => {
             <div className="container-fluid d-flex justify-content-between align-items-center">
 
                 {/* Branding */}
-                <Link className="navbar-brand fw-bold brand-highlight" to="/">
-                StockApp
+                <Link className="navbar-brand fw-bold brand-highlight " to="/">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7RmvuhvqZZFqmNl2yyQLlwY2zqx7HJRGeog&s" alt="LOGO-HOME" className="nav-icon-btn"/>
                 </Link>
 
                 {/* Centro - Navegación principal */}
