@@ -311,7 +311,7 @@ const StockList = () => {
             {/* Lista */}
             <div className="col-md-8 p-4">
                 <h2 className="text-center mb-4" style={{ color: "var(--color-primario)" }} id="buscador-producto">
-                LISA
+                LISA STOCK
                 </h2>
                 {/* Buscador */}
                 <div className="mb-4" id="buscador-producto">
