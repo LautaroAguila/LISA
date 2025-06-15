@@ -16,3 +16,54 @@
   font-size: 0.75rem;
 }
 
+/* Navbar con tu paleta */
+.custom-navbar {
+  background-color: var(--color-primario) !important;
+  border-bottom: 1px solid var(--color-fondo-oscuro);
+}
+
+/* Marca */
+.brand-highlight {
+  color: #f1c40f !important;
+  font-size: 1.3rem;
+  transition: color 0.3s ease;
+}
+.brand-highlight:hover {
+  color: #f39c12 !important;
+}
+
+/* Centro: Íconos estilo tab */
+.nav-center-link {
+  color: var(--color-fondo-claro);
+  font-size: 1.5rem;
+  padding: 0.4rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+.nav-center-link:hover {
+  background-color: var(--color-fondo-oscuro);
+  border-radius: 6px;
+}
+.nav-center-link.active {
+  border-bottom: 3px solid #3498db; /* tab azul como Facebook */
+}
+
+/* Botones redondos */
+.nav-icon-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-primario);
+  background-color: var(--color-fondo-oscuro);
+  font-size: 1.2rem;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+}
+.nav-icon-btn:hover {
+  background-color: var(--color-exito);
+  color: #fff;
+}
+

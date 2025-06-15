@@ -6,6 +6,7 @@ import { Form, Alert} from "react-bootstrap";
 import NavBar from "../NavBar/NavBar";
 import { Link, useNavigate } from "react-router-dom";
 import PLANES from "../../utils/planes";
+import Spinner from "../Spinner/Spinner";
 
 
 
@@ -129,7 +130,7 @@ const Profile = () => {
 
 
 
-    if (loading) return <p className="text-center mt-5">Cargando perfil...</p>;
+    if (loading) return <><NavBar/><Spinner/></>;
 
     return (
         <>
@@ -201,17 +202,31 @@ const Profile = () => {
             
             <div className="mt-4 p-3 border rounded bg-light">
                 <h5>📦 Tu Plan de Suscripción</h5>
-                <p className="fw-bold">{PLANES[userData.plan || "gratis"].nombre}</p>
-                <ul>
-                    {PLANES[userData.plan || "gratis"].beneficios.map((item, idx) => (
+
+                {userData.plan === "premium" ? (
+                    <>
+                    <p className="fw-bold text-success">Plan Premium</p>
+                    <p>🎉 Ya sos usuario premium. Gracias por tu suscripción.</p>
+                    </>
+                ) : (
+                    <>
+                    <p className="fw-bold text-secondary">Plan Gratuito</p>
+                    <p>💡 Podés pasarte al plan <strong>Premium</strong> y acceder a estos beneficios:</p>
+                    </>
+                )}
+
+                <ul className="mb-3">
+                    {PLANES["premium"].beneficios.map((item, idx) => (
                     <li key={idx}>{item}</li>
                     ))}
                 </ul>
-                {/* Botón para cambiar de plan (próximo paso) */}
-                <Link className="nav-link text-darck" to="/planes">📊 planes</Link>
 
-
-            </div>
+                {userData.plan !== "premium" && (
+                    <Link className="btn btn-outline-primary w-100" to="/planes">
+                    🚀 Ver planes disponibles
+                    </Link>
+                )}
+                </div>
             
             
                         

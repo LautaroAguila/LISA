@@ -73,7 +73,7 @@ const Gallery = () => {
     });
     
 
-    if (loading) return <Spinner />;
+    if (loading) return <><NavBar/>  <Spinner/> </>;
 
     return (
         <>
