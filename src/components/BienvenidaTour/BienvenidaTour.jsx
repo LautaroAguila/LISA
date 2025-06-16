@@ -18,7 +18,8 @@ const BienvenidaTour = () => {
       if (userSnap.exists()) {
         const data = userSnap.data();
         if (!data.hasSeenTour) {
-          setRun(true);
+          // Esperar un poco para asegurar que todo está renderizado
+          setTimeout(() => setRun(true), 1000);
           await updateDoc(userRef, { hasSeenTour: true }); // Marcar como visto
         }
       }
@@ -26,73 +27,73 @@ const BienvenidaTour = () => {
       setSteps([
         {
           target: '.navbar-brand',
-          content: 'Bienvenido a StockApp. Este es el logo.',
+          content: 'Bienvenido a StockApp. Este es nuestro logo. Si lo clickeas podras volver al inicio.',
         },
         {
-          target: '.nav-link[href="/add-product"]',
+          target: '.nav-icon-btn[title="Agregar Producto"]',
           content: 'Acá podés agregar productos.',
         },
         {
-      target: '.nav-link[href="/ingreso-masivo"]',
-      content: '¿Muchos productos? Cargalos con un Excel desde aquí.',
-      placement: 'bottom',
-    },
-    {
-      target: '.nav-link[href="/list-buy"]',
-      content: 'Tu lista de compras o productos a reponer.',
-      placement: 'bottom',
-    },
-    {
-      target: '.nav-link[href="/galeria"]',
-      content: 'Mirá imágenes de tus productos desde la galería.',
-      placement: 'bottom',
-    },
-    {
-      target: '.nav-link[href="/estadisticas"]',
-      content: 'Mirá las estadísticas de precios, stock y más.',
-      placement: 'bottom',
-    },
-    {
-      target: '.nav-link[href="/profile"]',
-      content: 'Desde acá podés editar tu perfil y cambiar tu contraseña.',
-      placement: 'bottom',
-    },
-    {
-      target: 'label[for="tipoFiltro"]',
-      content: 'Podés filtrar los productos por tipo.',
-    },
-    {
-      target: 'label[for="marcaFiltro"]',
-      content: 'También por marca.',
-    },
-    {
-      target: 'label[for="proveedorFiltro"]',
-      content: 'Y por proveedor.',
-    },
-    {
-      target: 'input[placeholder="Escribe el nombre..."]',
-      content: 'Buscá por nombre o código de barras acá.',
-    },
-    {
-      target: 'table',
-      content: 'Este es tu stock agrupado por tipo. Podés ordenar las columnas o hacer clic en un producto para ver más.',
-    },
-    {
-      target: '.btn-outline-dark',
-      content: 'Desde acá podés consumir un producto y descontar su stock.',
-    },
-    {
-      target: '.btn-outline-primary',
-      content: 'Editá cualquier producto con este botón.',
-    },
-    {
-      target: '.btn-outline-danger',
-      content: 'Eliminá productos desde acá (¡con cuidado!).',
-    },
-    {
-      target: '.col-md-2:last-child',
-      content: 'Este resumen te muestra el stock bajo en tiempo real.',
-    },
+          target: '.nav-icon-btn[title="Agregar Lista"]',
+          content: '¿Muchos productos? Cargalos con un Excel desde aquí. Descarga el template y completalo para subirlo.',
+          placement: 'bottom',
+        },
+        {
+          target: '.nav-icon-btn[title="Lista de Compras"]',
+          content: 'Tu lista de compras o productos a reponer.',
+          placement: 'bottom',
+        },
+        {
+          target: '.nav-link.nav-center-link[href="/galeria"]',
+          content: 'La galería muestra las fotos de tus productos. Las imágenes se cargan desde la vista de detalle que se abre al hacer clic en el nombre de un producto en el stock.',
+          placement: 'bottom',
+        },
+        {
+          target: '.nav-link.nav-center-link[href="/estadisticas"]',
+          content: 'Mirá las estadísticas de precios, stock y más.',
+          placement: 'bottom',
+        },
+        {
+          target: '#perfilDropdown',
+          content: 'Desde acá podés editar tu perfil o cerrar sesión.',
+          placement: 'bottom',
+        },
+        {
+          target: 'label[for="tipoFiltro"]',
+          content: 'Podés filtrar los productos por tipo.',
+        },
+        {
+          target: 'label[for="marcaFiltro"]',
+          content: 'También por marca.',
+        },
+        {
+          target: 'label[for="proveedorFiltro"]',
+          content: 'Y por proveedor.',
+        },
+        {
+          target: 'input[placeholder="Escribe el nombre..."]',
+          content: 'Buscá por nombre o código de barras acá.',
+        },
+        {
+          target: 'table',
+          content: 'Este es tu stock agrupado por tipo. Podés ordenar las columnas o hacer clic en un producto para ver más.',
+        },
+        {
+          target: '.btn-outline-dark',
+          content: 'Desde acá podés consumir un producto y descontar su stock.',
+        },
+        {
+          target: '.btn-outline-primary',
+          content: 'Editá cualquier producto con este botón.',
+        },
+        {
+          target: '.btn-outline-danger',
+          content: 'Eliminá productos desde acá (¡con cuidado!).',
+        },
+        {
+          target: '#resumen-stock',
+          content: 'Finalmente, este resumen te muestra el stock bajo en tiempo real, tu cantidad de productos y el dinero gastado este mes. Si quieres puedes volver a activar este tour luego de ingresar tus productos para mas informacion, encontras el boton de ver tour de bienvenida en tu perfil.',
+        },
       ]);
     };
 

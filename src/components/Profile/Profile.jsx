@@ -7,7 +7,7 @@ import NavBar from "../NavBar/NavBar";
 import { Link, useNavigate } from "react-router-dom";
 import PLANES from "../../utils/planes";
 import Spinner from "../Spinner/Spinner";
-
+import noFoto from "../../assets/img/noFoto.webp"
 
 
 
@@ -133,112 +133,127 @@ const Profile = () => {
     if (loading) return <><NavBar/><Spinner/></>;
 
     return (
-        <>
-        <NavBar/>
-        <div className="container mt-5" style={{ maxWidth: "600px" }}>
-            <h2 className="mb-4">👤 Mi Perfil</h2>
+  <>
+    <NavBar />
+    <div className="container mt-5" style={{ maxWidth: "600px" }}>
+      <h2 className="mb-4 text-center text-primary">👤 Mi Perfil</h2>
 
-            {statusMsg && <Alert variant="info">{statusMsg}</Alert>}
+      {statusMsg && <Alert variant="info">{statusMsg}</Alert>}
 
-            <div className="d-flex align-items-center mb-4">
-                <img
-                src={userData?.photoBase64 || "/default-avatar.png"}
-                alt="Foto de perfil"
-                className="rounded-circle mb-3"
-                style={{ width: "120px", height: "120px", objectFit: "cover", border: "2px solid #ccc" }}
-                />
-                <Form.Group>
-                <Form.Label>📷 Cambiar Foto</Form.Label>
-                <Form.Control type="file" accept="image/*" onChange={handlePhotoUpload} />
-                </Form.Group>
-            </div>
-            <button className="btn btn-outline-danger fw-bold" onClick={handleLogout}>
-                🚪 Cerrar sesión
-            </button>
-            {userData.rol === "admin" && (
-            <Link className="nav-link text-dark mb-3 d-inline-block" to="/admin">
-                🛠️ Panel de Administración
-            </Link>
-            )}
+      {/* FOTO DE PERFIL */}
+      <div className="d-flex flex-column align-items-center text-center mb-4">
+        <img
+            src={userData?.photoBase64 || noFoto}
+            alt="foto perfil"
+            className="rounded-circle shadow-sm"
+            style={{
+            width: "120px",
+            height: "120px",
+            objectFit: "cover",
+            border: "3px solid var(--color-primario)"
+            }}
+        />
+        
 
-
-            <div className="mb-3">
-                <label className="form-label fw-bold">📧 Email</label>
-                <input type="email" className="form-control" value={userData.email} disabled />
-            </div>
-            <div className="mb-3">
-                <label className="form-label fw-bold">🧑 Nombre</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    name="nombre"
-                    value={userData.nombre}
-                    onChange={handleChange}
-                />
-            </div>
-            <div className="mb-3">
-                <label className="form-label fw-bold">📞 Teléfono</label>
-                <input
-                    type="tel"
-                    className="form-control"
-                    name="telefono"
-                    value={userData.telefono}
-                    onChange={handleChange}
-                />
-            </div>
-            <div className="mb-3">
-                <label className="form-label fw-bold">🔔 Umbral de stock bajo</label>
-                <input
-                    type="number"
-                    className="form-control"
-                    min={1}
-                    placeholder={userData.stock_bajo_umbral}
-                    onChange={(e) => setUmbralStockBajo(Number(e.target.value))}
-                />
-            </div>
-            <button className="btn btn-success" onClick={handleSave}>
-                💾 Guardar Cambios
-            </button>
-            
-            <div className="mt-4 p-3 border rounded bg-light">
-                <h5>📦 Tu Plan de Suscripción</h5>
-
-                {userData.plan === "premium" ? (
-                    <>
-                    <p className="fw-bold text-success">Plan Premium</p>
-                    <p>🎉 Ya sos usuario premium. Gracias por tu suscripción.</p>
-                    </>
-                ) : (
-                    <>
-                    <p className="fw-bold text-secondary">Plan Gratuito</p>
-                    <p>💡 Podés pasarte al plan <strong>Premium</strong> y acceder a estos beneficios:</p>
-                    </>
-                )}
-
-                <ul className="mb-3">
-                    {PLANES["premium"].beneficios.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                    ))}
-                </ul>
-
-                {userData.plan !== "premium" && (
-                    <Link className="btn btn-outline-primary w-100" to="/planes">
-                    🚀 Ver planes disponibles
-                    </Link>
-                )}
-                </div>
-            
-            
-                        
-
-            {mensaje && <div className="alert mt-3">{mensaje}</div>}
-
-            <button onClick={handleReiniciarTour} className="btn btn-outline-warning mt-3">
-            🔄 Ver tour de bienvenida nuevamente
-            </button>
+        <Form.Group className="mt-2 w-100">
+            <Form.Label className="fw-semibold">📷 Cambiar Foto</Form.Label>
+            <Form.Control type="file" accept="image/*" onChange={handlePhotoUpload} />
+        </Form.Group>
         </div>
-        </>
-    );
+
+
+      {/* CAMPOS DE DATOS */}
+      <div className="mb-3">
+        <label className="form-label fw-bold">📧 Email</label>
+        <input type="email" className="form-control" value={userData.email} disabled />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label fw-bold">🧑 Nombre</label>
+        <input type="text" className="form-control" name="nombre" value={userData.nombre} onChange={handleChange} />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label fw-bold">📞 Teléfono</label>
+        <input type="tel" className="form-control" name="telefono" value={userData.telefono} onChange={handleChange} />
+      </div>
+
+      <div className="mb-4">
+        <label className="form-label fw-bold">🔔 Umbral de stock bajo</label>
+        <input
+          type="number"
+          className="form-control"
+          min={1}
+          placeholder={userData.stock_bajo_umbral}
+          onChange={(e) => setUmbralStockBajo(Number(e.target.value))}
+        />
+      </div>
+
+      {/* BOTÓN GUARDAR */}
+      <div className="d-grid mb-4">
+        <button className="btn btn-success fw-bold" onClick={handleSave}>
+          💾 Guardar Cambios
+        </button>
+      </div>
+
+      {/* PLAN DE SUSCRIPCIÓN */}
+      <div className="p-4 border rounded bg-light mb-4 shadow-sm">
+        <h5 className="fw-bold text-primary mb-3">📦 Tu Plan de Suscripción</h5>
+
+        {userData.plan === "premium" ? (
+          <>
+            <p className="fw-bold text-success">🎉 Ya sos usuario Premium.</p>
+            <p>¡Gracias por tu suscripción!</p>
+          </>
+        ) : (
+          <>
+            <p className="fw-bold text-secondary">Plan Gratuito</p>
+            <p>
+              💡 Podés pasarte al plan <strong>Premium</strong> y acceder a estos beneficios:
+            </p>
+          </>
+        )}
+
+        <ul className="mb-3">
+          {PLANES["premium"].beneficios.map((item, idx) => (
+            <li key={idx}>{item}</li>
+          ))}
+        </ul>
+
+        {userData.plan !== "premium" && (
+          <Link className="btn btn-outline-primary w-100 fw-bold" to="/planes">
+            🚀 Ver planes disponibles
+          </Link>
+        )}
+      </div>
+
+      {/* ACCIONES EXTRAS */}
+      {userData.rol === "admin" && (
+        <div className="d-grid mb-3">
+          <Link className="btn btn-outline-dark fw-bold" to="/admin">
+            🛠️ Panel de Administración
+          </Link>
+        </div>
+      )}
+
+      {mensaje && <div className="alert alert-info mt-3">{mensaje}</div>}
+
+      <div className="d-grid">
+        <button onClick={handleReiniciarTour} className="btn btn-outline-warning fw-bold">
+          🔄 Ver tour de bienvenida nuevamente
+        </button>
+      </div>
+
+      {/* CERRAR SESIÓN */}
+      <div className="d-grid mt-4">
+        <button className="btn btn-outline-danger fw-bold" onClick={handleLogout}>
+          🚪 Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </>
+);
+
 };
 
 export default Profile;

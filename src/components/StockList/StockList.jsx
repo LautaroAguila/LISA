@@ -24,18 +24,12 @@ const StockList = () => {
     const [loading, setLoading] = useState(true);
     const [productoEditar, setProductoEditar] = useState(null); // ✅ Nuevo estado para el modal
     const [umbralStockBajo, setUmbralStockBajo] = useState(3); // Valor por defecto
-
-
     const db = getFirestore(app);
     const auth = getAuth();
-
     const [productoSeleccionado, setProductoSeleccionado] = useState(null);
     const [mostrarModal, setMostrarModal] = useState(false);
-
     const [productoAConsumir, setProductoAConsumir] = useState(null);
     const [cantidadAConsumir, setCantidadAConsumir] = useState("");
-
-
     const UMBRAL_VENCIMIENTO_DIAS = 7;
 
     const generarNotificaciones = async (productos, umbralStockBajo) => {
@@ -73,7 +67,6 @@ const StockList = () => {
         }
     };
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -105,7 +98,6 @@ const StockList = () => {
 
         fetchData();
     }, []);
-
 
     const handleOrdenar = (campo) => {
         setOrden((prev) => ({
@@ -220,7 +212,6 @@ const StockList = () => {
         alert("✅ Consumo registrado.");
         handleCerrarConsumo();
     };
-
 
     if (loading) return <><NavBar/>  <Spinner/> </>;
 

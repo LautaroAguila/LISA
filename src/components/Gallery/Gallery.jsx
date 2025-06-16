@@ -19,6 +19,8 @@ const Gallery = () => {
     const [filtroTipo, setFiltroTipo] = useState("");
     const [filtroMarca, setFiltroMarca] = useState("");
     const [busqueda, setBusqueda] = useState("");
+    const [mostrarFiltros, setMostrarFiltros] = useState(true);
+
 
 
     useEffect(() => {
@@ -76,160 +78,185 @@ const Gallery = () => {
     if (loading) return <><NavBar/>  <Spinner/> </>;
 
     return (
-        <>
-        <NavBar />
-        <div className="d-flex" style={{ minHeight: "100vh" }}>
-            {/* Panel de filtros */}
-            <div className="p-3 border-end bg-dark text-light" style={{ width: "700px" }}>
-                <h5 className="text-center mb-4">🔍 Filtros</h5>
-                <Form.Group className="mb-3">
-                    <Form.Label>Tipo</Form.Label>
-                    <Form.Select
-                        value={filtroTipo}
-                        onChange={(e) => setFiltroTipo(e.target.value)}
-                        className="form-select form-select-sm"
-                    >
-                        <option value="">Todos</option>
-                        {[...new Set(productos.map(p => p.tipo).filter(Boolean))].map(tipo => (
-                            <option key={tipo} value={tipo}>{tipo}</option>
-                        ))}
-                    </Form.Select>
-                </Form.Group>
-    
-                <Form.Group className="mb-3">
-                    <Form.Label>Marca</Form.Label>
-                    <Form.Select
-                        value={filtroMarca}
-                        onChange={(e) => setFiltroMarca(e.target.value)}
-                        className="form-select form-select-sm"
-                    >
-                        <option value="">Todas</option>
-                        {[...new Set(productos.map(p => p.marca).filter(Boolean))].map(marca => (
-                            <option key={marca} value={marca}>{marca}</option>
-                        ))}
-                    </Form.Select>
-                </Form.Group>
-    
-                <Button variant="outline-light" className="mt-2 w-100" onClick={() => {
-                    setFiltroMarca("");
-                    setFiltroTipo("");
-                    setBusqueda("");
-                }}>
-                    🧹 Limpiar Filtros
-                </Button>
-            </div>
-    
-            {/* Contenido principal */}
-            <div className="flex-grow-1 p-4 bg-light">
-                <Form.Group className="mb-4" style={{ maxWidth: "400px" }}>
-                    <Form.Label className="fw-bold">Buscar por nombre o código</Form.Label>
-                    <Form.Control
-                        type="text"
-                        placeholder="Ej: crema o 779..."
-                        value={busqueda}
-                        onChange={(e) => setBusqueda(e.target.value)}
-                        className="form-control-sm"
-                    />
-                </Form.Group>
-    
-                <h3 className="text-center mb-4 fw-bold">🛍️ Catálogo de Productos</h3>
-                <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-                    {productosFiltrados.map(producto => (
-                        <Col key={producto.id}>
-                            <Card
-                                onClick={() => handleMostrarDetalle(producto)}
-                                className="shadow-sm border-0"
-                                style={{ cursor: "pointer", borderRadius: "12px", transition: "transform 0.2s" }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.02)"}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-                            >
-                                {producto.imagen && (
-                                    <Card.Img
-                                        variant="top"
-                                        src={producto.imagen}
-                                        style={{
-                                            height: "180px",
-                                            objectFit: "cover",
-                                            borderTopLeftRadius: "12px",
-                                            borderTopRightRadius: "12px"
-                                        }}
-                                    />
-                                )}
-                                <Card.Body>
-                                    <Card.Title className="text-truncate fw-semibold">
-                                        {producto.nombre}
-                                    </Card.Title>
-    
-                                    <div className="mb-2">
-                                        <span className="badge bg-info text-dark me-2">
-                                            {producto.marca ?? "Sin marca"}
-                                        </span>
-                                        <span className={`badge ${producto.cantidad > 0 ? "bg-success" : "bg-danger"}`}>
-                                            {producto.cantidad > 0 ? `Stock: ${producto.cantidad}` : "Sin stock"}
-                                        </span>
-                                    </div>
-    
-                                    <Card.Text className="small">
-                                        <strong>💲 Precio:</strong> ${producto.precio_venta ?? "—"}<br />
-                                        <strong>🗓️ Vence:</strong> {producto.fecha_vencimiento ?? "—"}
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-            </div>
+    <>
+      <NavBar />
+
+      <div className="d-flex flex-column flex-lg-row w-100">
+
+        {/* Botón toggle filtros */}
+        <div className="d-lg-none text-center my-3">
+          <Button
+            variant="dark"
+            className="btn-toggle-filtros"
+            onClick={() => setMostrarFiltros(!mostrarFiltros)}
+          >
+            🧰 {mostrarFiltros ? "Ocultar Filtros" : "Filtrar"}
+          </Button>
         </div>
-    
-        {/* Modal Detalle */}
-        <Modal show={mostrarModal} onHide={handleCerrarModal} centered size="lg">
-            <Modal.Header closeButton className="bg-dark text-light">
-                <Modal.Title>{productoSeleccionado?.nombre}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="text-center bg-light">
-                {productoSeleccionado?.imagen && (
-                    <img
-                        src={productoSeleccionado.imagen}
-                        alt={productoSeleccionado.nombre}
-                        className="img-fluid rounded mb-3 shadow-sm"
-                        style={{ maxHeight: "300px", objectFit: "contain" }}
-                    />
-                )}
-                <p><strong>💲 Precio de venta:</strong> ${productoSeleccionado?.precio_venta ?? "—"}</p>
-                <p><strong>📦 Stock disponible:</strong> {productoSeleccionado?.cantidad ?? 0}</p>
-                <p><strong>🏷️ Marca:</strong> {productoSeleccionado?.marca ?? "—"}</p>
-    
-                {editandoDescripcion ? (
-                    <>
-                        <Form.Group>
-                            <Form.Label className="fw-bold">📝 Descripción</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={descripcion}
-                                onChange={(e) => setDescripcion(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Button variant="success" className="mt-3" onClick={handleGuardarDescripcion}>
-                            💾 Guardar Descripción
-                        </Button>
-                    </>
-                ) : (
-                    <>
-                        <p><strong>📝 Descripción:</strong> {productoSeleccionado?.descripcion || "Sin descripción"}</p>
-                        <Button variant="outline-secondary" onClick={() => setEditandoDescripcion(true)}>
-                            ✏️ Agregar / Editar Descripción
-                        </Button>
-                    </>
-                )}
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleCerrarModal}>Cerrar</Button>
-            </Modal.Footer>
-        </Modal>
+
+        <div className="row g-0">
+          {/* Panel de filtros */}
+          <div className={`col-12 col-lg-3 sidebar-filtros ${mostrarFiltros ? "show" : "hide"}`}>
+            <div className="p-3 border-end bg-dark text-light h-100">
+              <h5 className="text-center mb-4">🔍 Filtros</h5>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Tipo</Form.Label>
+                <Form.Select
+                  value={filtroTipo}
+                  onChange={(e) => setFiltroTipo(e.target.value)}
+                  className="form-select form-select-sm"
+                >
+                  <option value="">Todos</option>
+                  {[...new Set(productos.map(p => p.tipo).filter(Boolean))].map(tipo => (
+                    <option key={tipo} value={tipo}>{tipo}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Marca</Form.Label>
+                <Form.Select
+                  value={filtroMarca}
+                  onChange={(e) => setFiltroMarca(e.target.value)}
+                  className="form-select form-select-sm"
+                >
+                  <option value="">Todas</option>
+                  {[...new Set(productos.map(p => p.marca).filter(Boolean))].map(marca => (
+                    <option key={marca} value={marca}>{marca}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              <Button variant="outline-light" className="mt-2 w-100" onClick={() => {
+                setFiltroMarca("");
+                setFiltroTipo("");
+                setBusqueda("");
+              }}>
+                🧹 Limpiar Filtros
+              </Button>
+            </div>
+          </div>
+
+          {/* Contenido principal */}
+          <div className="col bg-light p-4">
+            <Form.Group className="mb-4" style={{ maxWidth: "400px" }}>
+              <Form.Label className="fw-bold">Buscar por nombre o código</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Ej: crema o 779..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="form-control-sm"
+              />
+            </Form.Group>
+
+            <h3 className="text-center mb-4 fw-bold">🛍️ Catálogo de Productos</h3>
+
+            <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+              {productosFiltrados.map(producto => (
+                <Col key={producto.id}>
+                  <Card
+                    onClick={() => handleMostrarDetalle(producto)}
+                    className="shadow-sm border-0"
+                    style={{
+                      cursor: "pointer",
+                      borderRadius: "12px",
+                      transition: "transform 0.2s"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.02)"}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                  >
+                    {producto.imagen && (
+                      <Card.Img
+                        variant="top"
+                        src={producto.imagen}
+                        style={{
+                          height: "180px",
+                          objectFit: "cover",
+                          borderTopLeftRadius: "12px",
+                          borderTopRightRadius: "12px"
+                        }}
+                      />
+                    )}
+                    <Card.Body>
+                      <Card.Title className="text-truncate fw-semibold">
+                        {producto.nombre}
+                      </Card.Title>
+
+                      <div className="mb-2">
+                        <span className="badge bg-info text-dark me-2">
+                          {producto.marca ?? "Sin marca"}
+                        </span>
+                        <span className={`badge ${producto.cantidad > 0 ? "bg-success" : "bg-danger"}`}>
+                          {producto.cantidad > 0 ? `Stock: ${producto.cantidad}` : "Sin stock"}
+                        </span>
+                      </div>
+
+                      <Card.Text className="small">
+                        <strong>💲 Precio:</strong> ${producto.precio_venta ?? "—"}<br />
+                        <strong>🗓️ Vence:</strong> {producto.fecha_vencimiento ?? "—"}
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de detalle */}
+      <Modal show={mostrarModal} onHide={handleCerrarModal} centered size="lg">
+        <Modal.Header closeButton className="bg-dark text-light">
+          <Modal.Title>{productoSeleccionado?.nombre}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="bg-light px-4 py-3 text-center">
+          {productoSeleccionado?.imagen && (
+            <img
+              src={productoSeleccionado.imagen}
+              alt={productoSeleccionado.nombre}
+              className="img-fluid rounded shadow-sm mb-3"
+              style={{ maxHeight: "280px", objectFit: "contain" }}
+            />
+          )}
+
+          <div className="text-start">
+            <p><strong>💲 Precio:</strong> ${productoSeleccionado?.precio_venta ?? "—"}</p>
+            <p><strong>📦 Stock:</strong> {productoSeleccionado?.cantidad ?? 0}</p>
+            <p><strong>🏷️ Marca:</strong> {productoSeleccionado?.marca ?? "—"}</p>
+
+            {editandoDescripcion ? (
+              <>
+                <Form.Group>
+                  <Form.Label className="fw-bold">📝 Descripción</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={descripcion}
+                    onChange={(e) => setDescripcion(e.target.value)}
+                  />
+                </Form.Group>
+                <Button variant="success" className="mt-3" onClick={handleGuardarDescripcion}>
+                  💾 Guardar
+                </Button>
+              </>
+            ) : (
+              <>
+                <p><strong>📝 Descripción:</strong> {productoSeleccionado?.descripcion || "Sin descripción"}</p>
+                <Button variant="outline-secondary" onClick={() => setEditandoDescripcion(true)}>
+                  ✏️ Editar Descripción
+                </Button>
+              </>
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCerrarModal}>Cerrar</Button>
+        </Modal.Footer>
+      </Modal>
     </>
-    
-    );
+  );
     
     
 };

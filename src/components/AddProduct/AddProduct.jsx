@@ -194,300 +194,186 @@ const AddProduct = () => {
     };
 
     return (
-        <>
-        <NavBar/>
-        <div className="container mt-4 text-dark">
-            
-        <h2>📦 Ingreso de Producto Individual</h2>
+    <>
+      <NavBar />
+      <div className="container mt-4 text-dark">
+        <h2 className="mb-4">📦 Ingreso de Producto Individual</h2>
 
-        <h5>Buscar Existente</h5>
-        <div className="form-group">
-            <label>Método de búsqueda:</label>
-            <select className="form-control" onChange={(e) => setModoBusqueda(e.target.value)}>
-            <option value="codigo_barras">Código de Barras</option>
-            <option value="nombre_marca">Nombre + Marca</option>
-            </select>
+        <div className="card p-4 shadow-sm">
+          <h5>🔍 Buscar Producto Existente</h5>
+          <div className="row mb-3">
+            <div className="col-md-6">
+              <label className="form-label">Método de búsqueda</label>
+              <select className="form-control" onChange={(e) => setModoBusqueda(e.target.value)}>
+                <option value="codigo_barras">Código de Barras</option>
+                <option value="nombre_marca">Nombre + Marca</option>
+              </select>
+            </div>
+            <div className="col-md-6">
+              <label className="form-label">Buscar</label>
+              <input
+                className="form-control"
+                value={busqueda}
+                placeholder={modoBusqueda === "codigo_barras" ? "12345678" : "nombre marca"}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+              {modoBusqueda === "nombre_marca" && (
+                <small className="text-muted">Ingrese el nombre del producto, un espacio, y luego la marca.</small>
+              )}
+              <button className="btn btn-primary mt-2" onClick={buscarProducto}>Buscar</button>
+              {cargando && <div className="alert alert-info mt-2">⏳ {mensaje}</div>}
+            </div>
+          </div>
         </div>
 
-        <div className="form-group">
-            <label>Buscar:</label>
-            <input
-            className="form-control"
-            value={busqueda}
-            placeholder={modoBusqueda === "codigo_barras" ? "12345678" : "nombre marca"}
-            onChange={(e) => setBusqueda(e.target.value)}
-            />
-            <div className="">{modoBusqueda === "nombre_marca" ? <p>Para buscar por nombre y marca, ingrese el nombre del producto un espacio y luego la marca.</p> : ""}</div>
-            <button className="btn btn-primary mt-2" onClick={buscarProducto}>Buscar</button>
-            {cargando && <div className="alert alert-info">⏳ {mensaje}</div>}
-        </div>
-        
-        {/* 👇 Formulario dinámico según si es nuevo o no */}
-        <hr />
+        <hr className="my-4" />
+
         {!cargando && mensaje && <div className="alert alert-secondary">{mensaje}</div>}
-        <h5>{productoEncontrado ? "Producto encontrado" : "Nuevo producto"}</h5>
-        {productoEncontrado ? (
-                <>
-                    <h5> {formulario.nombre} ({formulario.marca})</h5>
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label>Proveedor</label>
-                            {!crearProveedor ? (
-                                <select
-                                className="form-control"
-                                value={formulario.proveedor}
-                                onChange={(e) => {
-                                    const valor = e.target.value;
-                                    if (valor === "__nueva__") {
-                                    setCrearProveedor(true);
-                                    setFormulario(prev => ({ ...prev, proveedor: "" }));
-                                    } else {
-                                    setFormulario(prev => ({ ...prev, proveedor: valor }));
-                                    }
-                                }}
-                                >
-                                <option value="">Seleccionar Proveedor</option>
-                                {listas.proveedores.map((proveedor, i) => (
-                                    <option key={i} value={proveedor}>{proveedor}</option>
-                                ))}
-                                <option value="__nueva__">➕ Crear nueva Proveedor</option>
-                                </select>
-                            ) : (
-                                <div className="d-flex">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Nueva Proveedor"
-                                    value={nuevoProveedor}
-                                    onChange={(e) => setNuevoProveedor(e.target.value)}
-                                />
-                                <button
-                                    className="btn btn-success ml-2"
-                                    onClick={async () => {
-                                    const ref = doc(db, "users", uid, "proveedores", nuevoProveedor);
-                                    await setDoc(ref, {});
-                                    setListas(prev => ({ ...prev, proveedores: [...prev.proveedores, nuevoProveedor] }));
-                                    setFormulario(prev => ({ ...prev, proveedor: nuevoProveedor }));
-                                    setNuevoProveedor("");
-                                    setCrearProveedor(false);
-                                    }}
-                                >
-                                    Guardar
-                                </button>
-                                </div>
-                            )}
-                        </div>{/*Proveedor*/}
-                    
-                        <div className="form-group col-md-3">
-                            <label>Fecha Ingreso</label>
-                            <input type="date" className="form-control" value={formulario.fecha_ingreso} onChange={(e) => handleChange("fecha_ingreso", e.target.value)} />
-                        </div>
-                        <div className="form-group col-md-3">
-                            <label>Fecha Vencimiento</label>
-                            <input type="date" className="form-control" value={formulario.fecha_vencimiento} onChange={(e) => handleChange("fecha_vencimiento", e.target.value)} />
-                        </div>
-                        <div className="form-group col-md-3">
-                            <label>Precio Ingreso</label>
-                            <input className="form-control" value={formulario.precio_ingreso} onChange={(e) => handleChange("precio_ingreso", e.target.value)} />
-                        </div>
-                        <div className="form-group col-md-3">
-                            <label>Precio Venta</label>
-                            <input className="form-control" value={formulario.precio_venta} onChange={(e) => handleChange("precio_venta", e.target.value)} />
-                        </div>
-                        <div className="form-group">
-                            <label>Cantidad</label>
-                            <input className="form-control" value={formulario.cantidad} onChange={(e) => handleChange("cantidad", e.target.value)} />
-                        </div>
-                        <button className="btn btn-success mt-3" onClick={guardarProducto}>💾 Guardar Producto</button>
-                    </div>
-                </>
-            ) : (
-                <>
-                    <div className="form-row">
-                        <div className="form-group col-md-6">
-                            <label>Nombre</label>
-                            <input className="form-control" value={formulario.nombre} onChange={(e) => handleChange("nombre", e.target.value)} />
-                        </div>
-                        <div className="form-group col-md-6">
-                            <label>Codigo de barras</label>
-                            <input className="form-control" value={formulario.codigo_barras} onChange={(e) => handleChange("codigo_barras", e.target.value)} />
-                        </div>
-                        <div className="form-group">
-                            <label>Marca</label>
-                            {!crearMarca ? (
-                                <select
-                                className="form-control"
-                                value={formulario.marca}
-                                onChange={(e) => {
-                                    const valor = e.target.value;
-                                    if (valor === "__nueva__") {
-                                    setCrearMarca(true);
-                                    setFormulario(prev => ({ ...prev, marca: "" }));
-                                    } else {
-                                    setFormulario(prev => ({ ...prev, marca: valor }));
-                                    }
-                                }}
-                                >
-                                <option value="">Seleccionar Marca</option>
-                                {listas.marcas.map((marca, i) => (
-                                    <option key={i} value={marca}>{marca}</option>
-                                ))}
-                                <option value="__nueva__">➕ Crear nueva marca</option>
-                                </select>
-                            ) : (
-                                <div className="d-flex">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Nueva marca"
-                                    value={nuevaMarca}
-                                    onChange={(e) => setNuevaMarca(e.target.value)}
-                                />
-                                <button
-                                    className="btn btn-success ml-2"
-                                    onClick={async () => {
-                                    const ref = doc(db, "users", uid, "marcas", nuevaMarca);
-                                    await setDoc(ref, {});
-                                    setListas(prev => ({ ...prev, marcas: [...prev.marcas, nuevaMarca] }));
-                                    setFormulario(prev => ({ ...prev, marca: nuevaMarca }));
-                                    setNuevaMarca("");
-                                    setCrearMarca(false);
-                                    }}
-                                >
-                                    Guardar
-                                </button>
-                                </div>
-                            )}
-                        </div>{/*Marca*/}
-                        <div className="form-group">
-                            <label>Proveedor</label>
-                            {!crearProveedor ? (
-                                <select
-                                className="form-control"
-                                value={formulario.proveedor}
-                                onChange={(e) => {
-                                    const valor = e.target.value;
-                                    if (valor === "__nueva__") {
-                                    setCrearProveedor(true);
-                                    setFormulario(prev => ({ ...prev, proveedor: "" }));
-                                    } else {
-                                    setFormulario(prev => ({ ...prev, proveedor: valor }));
-                                    }
-                                }}
-                                >
-                                <option value="">Seleccionar Proveedor</option>
-                                {listas.proveedores.map((proveedor, i) => (
-                                    <option key={i} value={proveedor}>{proveedor}</option>
-                                ))}
-                                <option value="__nueva__">➕ Crear nueva Proveedor</option>
-                                </select>
-                            ) : (
-                                <div className="d-flex">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Nueva Proveedor"
-                                    value={nuevoProveedor}
-                                    onChange={(e) => setNuevoProveedor(e.target.value)}
-                                />
-                                <button
-                                    className="btn btn-success ml-2"
-                                    onClick={async () => {
-                                    const ref = doc(db, "users", uid, "proveedores", nuevoProveedor);
-                                    await setDoc(ref, {});
-                                    setListas(prev => ({ ...prev, proveedores: [...prev.proveedores, nuevoProveedor] }));
-                                    setFormulario(prev => ({ ...prev, proveedor: nuevoProveedor }));
-                                    setNuevoProveedor("");
-                                    setCrearProveedor(false);
-                                    }}
-                                >
-                                    Guardar
-                                </button>
-                                </div>
-                            )}
-                        </div>{/*Proveedor*/}
-                        <div className="form-group">
-                            <label>Tipo</label>
-                            {!crearTipo ? (
-                                <select
-                                className="form-control"
-                                value={formulario.tipo}
-                                onChange={(e) => {
-                                    const valor = e.target.value;
-                                    if (valor === "__nueva__") {
-                                    setCrearTipo(true);
-                                    setFormulario(prev => ({ ...prev, tipo: "" }));
-                                    } else {
-                                    setFormulario(prev => ({ ...prev, tipo: valor }));
-                                    }
-                                }}
-                                >
-                                <option value="">Seleccionar Tipo</option>
-                                {listas.tipos.map((tipo, i) => (
-                                    <option key={i} value={tipo}>{tipo}</option>
-                                ))}
-                                <option value="__nueva__">➕ Crear nueva tipo</option>
-                                </select>
-                            ) : (
-                                <div className="d-flex">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Nueva tipo"
-                                    value={nuevoTipo}
-                                    onChange={(e) => setNuevoTipo(e.target.value)}
-                                />
-                                <button
-                                    className="btn btn-success ml-2"
-                                    onClick={async () => {
-                                    const ref = doc(db, "users", uid, "tipos", nuevoTipo);
-                                    await setDoc(ref, {});
-                                    setListas(prev => ({ ...prev, tipos: [...prev.tipos, nuevoTipo] }));
-                                    setFormulario(prev => ({ ...prev, tipo: nuevoTipo }));
-                                    setNuevoTipo("");
-                                    setCrearTipo(false);
-                                    }}
-                                >
-                                    Guardar
-                                </button>
-                                </div>
-                            )}
-                        </div>{/*Tipo*/}
-                        <div className="form-group col-md-4">
-                            <label>Stock Recom.</label>
-                            <input className="form-control" value={formulario.stock_recomendable} onChange={(e) => handleChange("stock_recomendable", e.target.value)} />
-                        </div>{/*stock Reco*/}
-                        <div className="form-group col-md-3">
-                            <label>Fecha Ingreso</label>
-                            <input type="date" className="form-control" value={formulario.fecha_ingreso} onChange={(e) => handleChange("fecha_ingreso", e.target.value)} />
-                        </div>
-                        <div className="form-group col-md-3">
-                            <label>Fecha Vencimiento</label>
-                            <input type="date" className="form-control" value={formulario.fecha_vencimiento} onChange={(e) => handleChange("fecha_vencimiento", e.target.value)} />
-                        </div>
-                        <div className="form-group col-md-3">
-                            <label>Precio Ingreso</label>
-                            <input className="form-control" value={formulario.precio_ingreso} onChange={(e) => handleChange("precio_ingreso", e.target.value)} />
-                        </div>
-                        <div className="form-group col-md-3">
-                            <label>Precio Venta</label>
-                            <input className="form-control" value={formulario.precio_venta} onChange={(e) => handleChange("precio_venta", e.target.value)} />
-                        </div>
-                        <div className="form-group">
-                            <label>Cantidad</label>
-                            <input className="form-control" value={formulario.cantidad} onChange={(e) => handleChange("cantidad", e.target.value)} />
-                        </div>
-                        <button className="btn btn-success mt-3" onClick={guardarProducto}>💾 Guardar Producto</button>
-                    </div>
-                </>
-            )}
 
-            
-            
+        <h5>{productoEncontrado ? "✅ Producto encontrado" : "🆕 Nuevo producto"}</h5>
+
+        <div className="card p-4 shadow-sm">
+          <div className="row g-3">
+            {/* Nombre y Código */}
+            <div className="col-md-6">
+              <label className="form-label">Nombre</label>
+              <input className="form-control" value={formulario.nombre} onChange={(e) => handleChange("nombre", e.target.value)} />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label">Código de Barras</label>
+              <input className="form-control" value={formulario.codigo_barras} onChange={(e) => handleChange("codigo_barras", e.target.value)} />
+            </div>
+
+            {/* Marca */}
+            <div className="col-md-6">
+              <label className="form-label">Marca</label>
+              {!crearMarca ? (
+                <select className="form-control" value={formulario.marca} onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "__nueva__") {
+                    setCrearMarca(true);
+                    setFormulario(prev => ({ ...prev, marca: "" }));
+                  } else {
+                    setFormulario(prev => ({ ...prev, marca: val }));
+                  }
+                }}>
+                  <option value="">Seleccionar Marca</option>
+                  {listas.marcas.map((m, i) => <option key={i} value={m}>{m}</option>)}
+                  <option value="__nueva__">➕ Crear nueva marca</option>
+                </select>
+              ) : (
+                <div className="d-flex gap-2">
+                  <input type="text" className="form-control" placeholder="Nueva marca" value={nuevaMarca} onChange={(e) => setNuevaMarca(e.target.value)} />
+                  <button className="btn btn-success" onClick={async () => {
+                    const ref = doc(db, "users", uid, "marcas", nuevaMarca);
+                    await setDoc(ref, {});
+                    setListas(prev => ({ ...prev, marcas: [...prev.marcas, nuevaMarca] }));
+                    setFormulario(prev => ({ ...prev, marca: nuevaMarca }));
+                    setNuevaMarca("");
+                    setCrearMarca(false);
+                  }}>Guardar</button>
+                </div>
+              )}
+            </div>
+
+            {/* Proveedor */}
+            <div className="col-md-6">
+              <label className="form-label">Proveedor</label>
+              {!crearProveedor ? (
+                <select className="form-control" value={formulario.proveedor} onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "__nueva__") {
+                    setCrearProveedor(true);
+                    setFormulario(prev => ({ ...prev, proveedor: "" }));
+                  } else {
+                    setFormulario(prev => ({ ...prev, proveedor: val }));
+                  }
+                }}>
+                  <option value="">Seleccionar Proveedor</option>
+                  {listas.proveedores.map((p, i) => <option key={i} value={p}>{p}</option>)}
+                  <option value="__nueva__">➕ Crear nuevo proveedor</option>
+                </select>
+              ) : (
+                <div className="d-flex gap-2">
+                  <input type="text" className="form-control" placeholder="Nuevo proveedor" value={nuevoProveedor} onChange={(e) => setNuevoProveedor(e.target.value)} />
+                  <button className="btn btn-success" onClick={async () => {
+                    const ref = doc(db, "users", uid, "proveedores", nuevoProveedor);
+                    await setDoc(ref, {});
+                    setListas(prev => ({ ...prev, proveedores: [...prev.proveedores, nuevoProveedor] }));
+                    setFormulario(prev => ({ ...prev, proveedor: nuevoProveedor }));
+                    setNuevoProveedor("");
+                    setCrearProveedor(false);
+                  }}>Guardar</button>
+                </div>
+              )}
+            </div>
+
+            {/* Tipo */}
+            <div className="col-md-6">
+              <label className="form-label">Tipo</label>
+              {!crearTipo ? (
+                <select className="form-control" value={formulario.tipo} onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "__nueva__") {
+                    setCrearTipo(true);
+                    setFormulario(prev => ({ ...prev, tipo: "" }));
+                  } else {
+                    setFormulario(prev => ({ ...prev, tipo: val }));
+                  }
+                }}>
+                  <option value="">Seleccionar Tipo</option>
+                  {listas.tipos.map((t, i) => <option key={i} value={t}>{t}</option>)}
+                  <option value="__nueva__">➕ Crear nuevo tipo</option>
+                </select>
+              ) : (
+                <div className="d-flex gap-2">
+                  <input type="text" className="form-control" placeholder="Nuevo tipo" value={nuevoTipo} onChange={(e) => setNuevoTipo(e.target.value)} />
+                  <button className="btn btn-success" onClick={async () => {
+                    const ref = doc(db, "users", uid, "tipos", nuevoTipo);
+                    await setDoc(ref, {});
+                    setListas(prev => ({ ...prev, tipos: [...prev.tipos, nuevoTipo] }));
+                    setFormulario(prev => ({ ...prev, tipo: nuevoTipo }));
+                    setNuevoTipo("");
+                    setCrearTipo(false);
+                  }}>Guardar</button>
+                </div>
+              )}
+            </div>
+
+            {/* Otros campos */}
+            <div className="col-md-3">
+              <label className="form-label">Stock Recom.</label>
+              <input className="form-control" value={formulario.stock_recomendable} onChange={(e) => handleChange("stock_recomendable", e.target.value)} />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Fecha Ingreso</label>
+              <input type="date" className="form-control" value={formulario.fecha_ingreso} onChange={(e) => handleChange("fecha_ingreso", e.target.value)} />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Fecha Vencimiento</label>
+              <input type="date" className="form-control" value={formulario.fecha_vencimiento} onChange={(e) => handleChange("fecha_vencimiento", e.target.value)} />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Precio Ingreso</label>
+              <input className="form-control" value={formulario.precio_ingreso} onChange={(e) => handleChange("precio_ingreso", e.target.value)} />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Precio Venta</label>
+              <input className="form-control" value={formulario.precio_venta} onChange={(e) => handleChange("precio_venta", e.target.value)} />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label">Cantidad</label>
+              <input className="form-control" value={formulario.cantidad} onChange={(e) => handleChange("cantidad", e.target.value)} />
+            </div>
+          </div>
+
+          <div className="mt-4 text-end">
+            <button className="btn btn-success" onClick={guardarProducto}>💾 Guardar Producto</button>
+          </div>
         </div>
-        
-        </>
-    );
+      </div>
+    </>
+  );
     };
 
     export default AddProduct;

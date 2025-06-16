@@ -67,3 +67,95 @@
   color: #fff;
 }
 
+/* Filtros */
+.sidebar-filtros {
+  min-width: 250px;
+  max-width: 320px;
+  background-color: var(--color-primario);
+  color: white;
+  padding: 1rem;
+  border-right: 2px solid var(--color-fondo-oscuro);
+}
+.sidebar-filtros h5 {
+  color: #f1c40f;
+  font-weight: bold;
+}
+
+/* Responsive para el panel de filtros */
+@media (max-width: 991px) {
+  .sidebar-filtros {
+    width: 100%;
+    border-right: none;
+    border-bottom: 2px solid var(--color-fondo-oscuro);
+  }
+}
+
+/* Tarjetas de producto */
+.card-producto {
+  cursor: pointer;
+  border-radius: 12px;
+  transition: transform 0.2s ease-in-out;
+}
+.card-producto:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive ajustes */
+@media (max-width: 768px) {
+  .navbar-nav {
+    flex-direction: column !important;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .nav-center-link {
+    font-size: 1.25rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .nav-icon-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+}
+
+/* Panel de filtros */
+.sidebar-filtros {
+  width: 100%;
+  max-width: 260px;
+  transition: all 0.3s ease;
+}
+
+/* Mostrar en mobile cuando está activo */
+@media (max-width: 991px) {
+  .sidebar-filtros.hide {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    visibility: hidden;
+  }
+  .sidebar-filtros.show {
+    max-height: 1000px;
+    opacity: 1;
+    padding: 1rem;
+    visibility: visible;
+  }
+}
+
+/* Botón toggle filtros */
+.btn-toggle-filtros {
+  background-color: var(--color-primario);
+  border: none;
+  font-weight: bold;
+  padding: 0.5rem 1.2rem;
+}
+.btn-toggle-filtros:hover {
+  background-color: var(--color-fondo-oscuro);
+  color: white;
+}
