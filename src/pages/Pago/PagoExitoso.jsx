@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { auth, db } from "../../firebase/config";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar/NavBar"; // Si usás la misma navbar
 import { Container, Row, Col, Card } from "react-bootstrap";
@@ -16,7 +16,7 @@ const PagoExitoso = () => {
       const updatePlan = async () => {
         try {
           const userRef = doc(db, "users", user.uid);
-          await updateDoc(userRef, { plan: "premium" });
+          await updateDoc(userRef, { plan: "premium" , fechaSuscripcion: serverTimestamp()});
           console.log("✅ Plan actualizado a premium");
         } catch (error) {
           console.error("❌ Error al actualizar plan:", error);
