@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Wallet, initMercadoPago } from "@mercadopago/sdk-react";
 import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
 import NavBar from "../components/NavBar/NavBar"; // Opcional
+import PLANES from "./planes";
 
 initMercadoPago("APP_USR-5f6e0283-b66c-4567-b8bb-c168e23741b4");
 
@@ -75,9 +76,15 @@ const Suscribirse = () => {
               }`}
             >
               <Card.Body className="text-center">
-                <h4 className="text-secondary">Plan Gratuito</h4>
-                <p>Acceso limitado a funcionalidades básicas.</p>
-                <h5 className="text-success fw-bold">Gratis</h5>
+                <h4 className="text-secondary">{PLANES.gratis.nombre}</h4>
+                <ul className="list-unstyled small text-muted mt-3">
+                  {PLANES.gratis.beneficios.map((b, i) => (
+                    <li key={i}>✔️ {b}</li>
+                  ))}
+                </ul>
+                <h5 className="text-success fw-bold mt-3">
+                  {PLANES.gratis.precio === 0 ? "Gratis" : `$${PLANES.gratis.precio}`}
+                </h5>
                 {userPlan === "gratis" && (
                   <Badge bg="success" className="mt-2">
                     Tu plan actual
@@ -95,9 +102,15 @@ const Suscribirse = () => {
               }`}
             >
               <Card.Body className="text-center">
-                <h4 className="text-primary">Plan Premium</h4>
-                <p>Funciones avanzadas y sin restricciones.</p>
-                <h5 className="text-primary fw-bold">$1000 / mes</h5>
+                <h4 className="text-primary">{PLANES.premium.nombre}</h4>
+                <ul className="list-unstyled small text-muted mt-3">
+                  {PLANES.premium.beneficios.map((b, i) => (
+                    <li key={i}>✨ {b}</li>
+                  ))}
+                </ul>
+                <h5 className="text-primary fw-bold mt-3">
+                  ${PLANES.premium.precio} / mes
+                </h5>
                 {userPlan === "premium" ? (
                   <Badge bg="success" className="mt-2">
                     Tu plan actual

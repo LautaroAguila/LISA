@@ -1,31 +1,31 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const Spinner = () => {
+const Spinner = ({ mensaje = "Cargando..." }) => {
     return (
         <div
-            className="d-flex justify-content-center align-items-center"
+            className="d-flex flex-column justify-content-center align-items-center"
             style={{
-            height: "100vh",
-            backgroundColor: "var(--color-fondo-claro)",
-            color: "var(--color-primario)",
-            padding: "20px",
-        }}
-        >
-        <div
-            className="spinner-border"
-            role="status"
-            style={{
-            width: "3rem",
-            height: "3rem",
-            color: "var(--color-primario)",
+                height: "100vh",
+                backgroundColor: "var(--color-fondo-claro)",
+                color: "var(--color-primario)",
+                padding: "20px",
             }}
         >
-            <span className="visually-hidden">Cargando...</span>
+            <div
+                className="spinner-border mb-3"
+                role="status"
+                style={{
+                    width: "3rem",
+                    height: "3rem",
+                    color: "var(--color-primario)",
+                }}
+            >
+                <span className="visually-hidden">Cargando...</span>
+            </div>
+            <p className="fw-bold">{mensaje}</p>
         </div>
-    </div>
     );
 };
 
 export default Spinner;
-

@@ -7,6 +7,7 @@ import { guardarProductosDesdeExcel } from "./guardarProductosDesdeExcel";
 import NavBar from "../NavBar/NavBar";
 import PLANES from "../../utils/planes";
 import { utils, writeFile } from "xlsx";
+import Spinner from "../Spinner/Spinner";
 
 
 const IngresoMasivoProductos = () => {
@@ -20,6 +21,9 @@ const IngresoMasivoProductos = () => {
 
     const auth = getAuth();
     const user = auth.currentUser;
+
+    const [cargando, setCargando] = useState(false);
+
 
     const puedeAgregarProducto = async () => {
         const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -97,7 +101,7 @@ const IngresoMasivoProductos = () => {
 
     const leerExcel = async () => {
         if (!archivo) return alert("Por favor seleccioná un archivo Excel.");
-    
+        setCargando(true);
         const reader = new FileReader();
     
         reader.onload = async (e) => {
@@ -157,6 +161,8 @@ const IngresoMasivoProductos = () => {
             } catch (error) {
                 console.error("Error al procesar archivo:", error);
                 setMensaje("❌ Error al procesar el archivo.");
+            } finally {
+            setCargando(false); // ✅ Fin
             }
         };
     
@@ -170,6 +176,7 @@ const IngresoMasivoProductos = () => {
             alert("❌ Has alcanzado el límite de productos según tu plan. Mejora tu suscripción para continuar.");
             return;
         }
+        setCargando(true);
         try {
             await guardarProductosDesdeExcel(productosPreview);
             setMensaje("✅ Productos cargados exitosamente.");
@@ -178,149 +185,169 @@ const IngresoMasivoProductos = () => {
         } catch (error) {
             console.error("Error al guardar productos:", error);
             setMensaje("❌ Error al guardar productos.");
+        }finally {
+            setCargando(false); // ✅ Fin
         }
     };
     
 
     return (
-    <>
-        <NavBar />
-        <div
-            className="container py-5"
-            style={{
-                backgroundColor: "var(--color-fondo-claro)",
-                minHeight: "100vh",
-                color: "var(--color-texto)",
-            }}
-        >
-            <h2 className="mb-4 fw-bold">📤 Subir Productos desde Excel</h2>
+  <>
+    <NavBar />
 
-            <div className="bg-white p-4 rounded shadow-sm mb-5" style={{ maxWidth: "700px" }}>
-                <input
-                    type="file"
-                    accept=".xlsx, .xls"
-                    className="form-control mb-3"
-                    onChange={handleFileChange}
-                />
+    {cargando ? (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
+        <Spinner />
+      </div>
+    ) : (
+      <div
+        className="container py-5"
+        style={{
+          backgroundColor: "var(--color-fondo-claro)",
+          minHeight: "100vh",
+          color: "var(--color-texto)",
+        }}
+      >
+        <h2 className="mb-4 fw-bold">📤 Subir Productos desde Excel</h2>
 
-                <div className="d-flex flex-wrap gap-3">
-                    <button className="btn btn-outline-secondary" onClick={descargarPlantilla}>
-                        📄 Descargar Plantilla
-                    </button>
-                    <button className="btn btn-success" onClick={leerExcel}>
-                        📁 Subir Archivo
-                    </button>
-                </div>
+        <div className="bg-white p-4 rounded shadow-sm mb-5" style={{ maxWidth: "700px" }}>
+          <input
+            type="file"
+            accept=".xlsx, .xls"
+            className="form-control mb-3"
+            onChange={handleFileChange}
+          />
+
+          <div className="d-flex flex-wrap gap-3">
+            <button className="btn btn-outline-secondary" onClick={descargarPlantilla}>
+              📄 Descargar Plantilla
+            </button>
+            <button className="btn btn-success" onClick={leerExcel}>
+              📁 Subir Archivo
+            </button>
+          </div>
+        </div>
+
+        {readyToUpload && productosPreview.length > 0 && (
+          <div className="mt-4">
+            <h5 className="fw-bold mb-3">🔍 Vista Previa</h5>
+            <div className="table-responsive bg-dark p-3 rounded shadow">
+              <table className="table table-dark table-hover table-sm align-middle">
+                <thead className="table-secondary text-dark">
+                  <tr>
+                    <th>Errores</th>
+                    <th>Cód. Barras</th>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Marca</th>
+                    <th>Proveedor</th>
+                    <th>$ Ingreso</th>
+                    <th>$ Venta</th>
+                    <th>Cantidad</th>
+                    <th>Stock Recom.</th>
+                    <th>Ingreso</th>
+                    <th>Vencimiento</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productosPreview.map((p, index) => (
+                    <tr key={index}>
+                      <td style={{ minWidth: "150px" }}>
+                        {erroresPorFila[index]?.length > 0 ? (
+                          <ul className="text-warning m-0 ps-3" style={{ fontSize: "0.8rem" }}>
+                            {erroresPorFila[index].map((err, i) => (
+                              <li key={i}>{err}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-success fw-bold">✅ Sin errores</span>
+                        )}
+                      </td>
+                      {[
+                        "codigo_barras",
+                        "nombre",
+                        "tipo",
+                        "marca",
+                        "proveedor",
+                        "precio_ingreso",
+                        "precio_venta",
+                        "cantidad",
+                        "stock_recomendable",
+                      ].map((campo) => (
+                        <td key={campo}>
+                          <input
+                            className="form-control form-control-sm"
+                            value={p[campo] || ""}
+                            onChange={(e) => handleCellChange(index, campo, e.target.value)}
+                          />
+                        </td>
+                      ))}
+                      <td>
+                        <input
+                          type="date"
+                          className="form-control form-control-sm"
+                          value={p.fecha_ingreso}
+                          onChange={(e) => handleCellChange(index, "fecha_ingreso", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="date"
+                          className="form-control form-control-sm"
+                          value={p.fecha_vencimiento || ""}
+                          onChange={(e) => handleCellChange(index, "fecha_vencimiento", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleEliminarFila(index)}
+                          title="Eliminar fila"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            {readyToUpload && productosPreview.length > 0 && (
-                <div className="mt-4">
-                    <h5 className="fw-bold mb-3">🔍 Vista Previa</h5>
-                    <div className="table-responsive bg-dark p-3 rounded shadow">
-                        <table className="table table-dark table-hover table-sm align-middle">
-                            <thead className="table-secondary text-dark">
-                                <tr>
-                                    <th>Errores</th>
-                                    <th>Cód. Barras</th>
-                                    <th>Nombre</th>
-                                    <th>Tipo</th>
-                                    <th>Marca</th>
-                                    <th>Proveedor</th>
-                                    <th>$ Ingreso</th>
-                                    <th>$ Venta</th>
-                                    <th>Cantidad</th>
-                                    <th>Stock Recom.</th>
-                                    <th>Ingreso</th>
-                                    <th>Vencimiento</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {productosPreview.map((p, index) => (
-                                    <tr key={index}>
-                                        <td style={{ minWidth: "150px" }}>
-                                            {erroresPorFila[index]?.length > 0 ? (
-                                                <ul className="text-warning m-0 ps-3" style={{ fontSize: "0.8rem" }}>
-                                                    {erroresPorFila[index].map((err, i) => (
-                                                        <li key={i}>{err}</li>
-                                                    ))}
-                                                </ul>
-                                            ) : (
-                                                <span className="text-success fw-bold">✅ Sin errores</span>
-                                            )}
-                                        </td>
-                                        {["codigo_barras", "nombre", "tipo", "marca", "proveedor", "precio_ingreso", "precio_venta", "cantidad", "stock_recomendable"].map((campo) => (
-                                            <td key={campo}>
-                                                <input
-                                                    className="form-control form-control-sm"
-                                                    value={p[campo] || ""}
-                                                    onChange={(e) => handleCellChange(index, campo, e.target.value)}
-                                                />
-                                            </td>
-                                        ))}
-                                        <td>
-                                            <input
-                                                type="date"
-                                                className="form-control form-control-sm"
-                                                value={p.fecha_ingreso}
-                                                onChange={(e) => handleCellChange(index, "fecha_ingreso", e.target.value)}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                type="date"
-                                                className="form-control form-control-sm"
-                                                value={p.fecha_vencimiento || ""}
-                                                onChange={(e) => handleCellChange(index, "fecha_vencimiento", e.target.value)}
-                                            />
-                                        </td>
-                                        <td>
-                                            <button
-                                                className="btn btn-sm btn-danger"
-                                                onClick={() => handleEliminarFila(index)}
-                                                title="Eliminar fila"
-                                            >
-                                                🗑️
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+            <button
+              className="btn btn-primary mt-4 shadow-sm"
+              onClick={confirmarCarga}
+              disabled={erroresPorFila.some((fila) => fila.length > 0)}
+            >
+              ✅ Guardar Productos
+            </button>
+          </div>
+        )}
 
-                    <button
-                        className="btn btn-primary mt-4 shadow-sm"
-                        onClick={confirmarCarga}
-                        disabled={erroresPorFila.some((fila) => fila.length > 0)}
-                    >
-                        ✅ Guardar Productos
-                    </button>
-                </div>
-            )}
+        {erroresPorFila.some((fila) => fila.length > 0) && (
+          <div className="alert alert-warning mt-4" style={{ maxWidth: "700px" }}>
+            ⚠️ Hay {erroresPorFila.filter((f) => f.length > 0).length} fila(s) con errores. Corregilas antes de continuar.
+          </div>
+        )}
 
-            {erroresPorFila.some((fila) => fila.length > 0) && (
-                <div className="alert alert-warning mt-4" style={{ maxWidth: "700px" }}>
-                    ⚠️ Hay {erroresPorFila.filter((f) => f.length > 0).length} fila(s) con errores. Corregilas antes de continuar.
-                </div>
-            )}
-
-            {mensaje && (
-                <div
-                    className="alert mt-4 shadow-sm"
-                    style={{
-                        whiteSpace: "pre-wrap",
-                        backgroundColor: "#222",
-                        color: "lightgreen",
-                        maxWidth: "700px",
-                    }}
-                >
-                    {mensaje}
-                </div>
-            )}
-        </div>
-    </>
+        {mensaje && (
+          <div
+            className="alert mt-4 shadow-sm"
+            style={{
+              whiteSpace: "pre-wrap",
+              backgroundColor: "#222",
+              color: "lightgreen",
+              maxWidth: "700px",
+            }}
+          >
+            {mensaje}
+          </div>
+        )}
+      </div>
+    )}
+  </>
 );
+
 
 };
 

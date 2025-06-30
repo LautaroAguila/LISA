@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db , auth} from "../../firebase/config";
 import { useNavigate } from "react-router-dom";
 
@@ -46,12 +46,13 @@ const Register = () => {
         direccion: direccion || null,
         rol: "usuario",
         verificado: false, // se puede actualizar luego al verificar
-        plan: "gratis",
+        plan: "premium",
         fechaRegistro: new Date().toISOString(),
+        fechaSuscripcion: serverTimestamp(),
         stock_bajo_umbral: 0
       });
 
-      setMensaje("Registro exitoso. Se envió un correo de verificación. Verifica tu cuenta antes de iniciar sesión.");
+      setMensaje("Registro exitoso. Te recordamos que tenes un mes gratis de prueba del plan premium. Se envió un correo de verificación. Verifica tu cuenta antes de iniciar sesión.");
       setEmail("");
       setNombre("");
       setApellido("");
