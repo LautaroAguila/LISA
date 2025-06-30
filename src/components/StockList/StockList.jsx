@@ -3,7 +3,7 @@ import { getFirestore, collection, getDocs, deleteDoc, doc, updateDoc, setDoc, s
 import { getAuth } from "firebase/auth";
 import { Link } from "react-router-dom";
 import { app } from "../../firebase/config";
-import { Button } from "react-bootstrap";
+import { Alert,Button } from "react-bootstrap";
 import Spinner from "../../components/Spinner/Spinner";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaTrash, FaEdit } from "react-icons/fa";
@@ -31,6 +31,8 @@ const StockList = () => {
     const [productoAConsumir, setProductoAConsumir] = useState(null);
     const [cantidadAConsumir, setCantidadAConsumir] = useState("");
     const UMBRAL_VENCIMIENTO_DIAS = 7;
+    const [mostrarAvisoVencimiento, setMostrarAvisoVencimiento] = useState(false);
+
 
     const generarNotificaciones = async (productos, umbralStockBajo) => {
         const user = auth.currentUser;
@@ -68,6 +70,11 @@ const StockList = () => {
     };
 
     useEffect(() => {
+        const aviso = localStorage.getItem("mostrarAvisoVencimiento");
+        if (aviso === "true") {
+            setMostrarAvisoVencimiento(true);
+            localStorage.removeItem("mostrarAvisoVencimiento");
+        }
         const fetchData = async () => {
             try {
                 const user = auth.currentUser;
@@ -219,6 +226,15 @@ const StockList = () => {
         <>
         <NavBar id='navbar'/>
         <BienvenidaTour/>
+
+        {mostrarAvisoVencimiento && (
+    <div className="container mt-4">
+        <Alert variant="warning" className="text-center fw-bold">
+            ⚠️ Tu suscripción Premium vence pronto. Renovala desde tu perfil para no perder los beneficios.
+        </Alert>
+    </div>
+)}
+
 
         <div
             className="container-fluid text-dark"

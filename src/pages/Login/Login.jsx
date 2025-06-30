@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../firebase/config";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -21,7 +21,6 @@ const Login = () => {
         }
     }, []);
 
-    // Limpia el error cuando el usuario escribe
     useEffect(() => {
         setError(null);
     }, [email, password]);
@@ -31,6 +30,24 @@ const Login = () => {
         const savedEmail = recordar ? email : "";
         localStorage.setItem("savedEmail", savedEmail);
         await handleLogin();
+    };
+
+    const yaPasoUnMes = (timestamp) => {
+        const suscripcion = timestamp.toDate();
+        const ahora = new Date();
+        const unMesDespues = new Date(suscripcion);
+        unMesDespues.setMonth(unMesDespues.getMonth() + 1);
+        return ahora >= unMesDespues;
+    };
+
+    const vencimientoEn7Dias = (timestamp) => {
+        const suscripcion = timestamp.toDate();
+        const unMesDespues = new Date(suscripcion);
+        unMesDespues.setMonth(unMesDespues.getMonth() + 1);
+        const ahora = new Date();
+        const diferenciaMs = unMesDespues - ahora;
+        const diasRestantes = diferenciaMs / (1000 * 60 * 60 * 24);
+        return diasRestantes <= 7 && diasRestantes > 0;
     };
 
     const handleLogin = async () => {
@@ -43,12 +60,26 @@ const Login = () => {
                 return;
             }
 
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            const data = userDoc.data();
+            const userDocRef = doc(db, "users", user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            const data = userDocSnap.data();
 
             if (!data || !data.rol) {
                 setError("Tu cuenta no tiene rol asignado. Contactá al administrador.");
                 return;
+            }
+
+            // Validación de vencimiento
+            if (data.plan === "premium" && data.fechaSuscripcion) {
+                if (yaPasoUnMes(data.fechaSuscripcion)) {
+                    await updateDoc(userDocRef, { plan: "gratis" });
+                    console.log("⏳ La suscripción venció. Plan revertido a gratis.");
+                    localStorage.removeItem("mostrarAvisoVencimiento");
+                } else if (vencimientoEn7Dias(data.fechaSuscripcion)) {
+                    localStorage.setItem("mostrarAvisoVencimiento", "true");
+                } else {
+                    localStorage.removeItem("mostrarAvisoVencimiento");
+                }
             }
 
             navigate("/");
