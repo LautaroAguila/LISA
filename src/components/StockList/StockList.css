@@ -1,0 +1,117 @@
+/* StockList filtros y layout responsive */
+
+/* --- Buscador: icono dentro input --- */
+.search-input {
+  border-radius: 30px;
+  padding: 10px 15px;
+  font-size: 0.95rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #ced4da;
+}
+
+.search-input:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+  outline: none;
+}
+
+.search-icon {
+  pointer-events: none;
+  font-size: 1rem;
+}
+/* Agrupar y centrar botones de acciones */
+.acciones-botones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+
+/* Scroll en lista principal */
+.col-md-8.overflow-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+
+.col-md-2.overflow-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+.col-md-2.overflow-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.col-md-2.overflow-auto::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 3px;
+}
+
+/* Botón filtros en móvil */
+@media (max-width: 767.98px) {
+  .btn-filtros-movil {
+    width: 160px;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+}
+
+/* Títulos */
+h2,
+h4 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tabla */
+#tabla-stock th {
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+#tabla-stock th:hover {
+  background-color: var(--color-primario-light, #dbefff);
+  cursor: pointer;
+}
+
+#tabla-stock td,
+#tabla-stock th {
+  vertical-align: middle !important;
+  font-size: 0.9rem;
+}
+
+/* Modal filtros */
+.modal-content {
+  border-radius: 0.5rem;
+}
+
+/* Para el borde del filtro en desktop */
+.border-end {
+  border-right: 1px solid var(--color-borde-claro) !important;
+}
+
+/* Scroll barras estilo */
+::-webkit-scrollbar {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+/* Colores variables ejemplo (por si querés definirlas) */
+:root {
+  --color-primario: #2c3e50;
+  --color-primario-light: #dbefff;
+  --color-secundario: #2980b9;
+  --color-borde-claro: #ccc;
+  --color-fondo-claro: #f9fafb;
+}
+
+/* Evitar que el botón filtros en móvil cambie tamaño con el texto */
+.btn-filtros-movil {
+  white-space: nowrap;
+}

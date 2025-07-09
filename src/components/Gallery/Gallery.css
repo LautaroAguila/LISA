@@ -1,0 +1,31 @@
+/* Altura completa para sidebar */
+.sidebar-filtros {
+  height: 100vh;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+}
+
+.hide {
+  display: none !important;
+}
+
+@media (max-width: 991px) {
+  .sidebar-filtros {
+    display: none;
+  }
+}
+.busqueda-input {
+  padding: 10px 14px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 0.95rem;
+  transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.busqueda-input:focus {
+  border-color: #198754; /* Bootstrap green */
+  box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25);
+  outline: none;
+}
