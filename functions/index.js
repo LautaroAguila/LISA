@@ -17,7 +17,7 @@ exports.createSubscription = functions.https.onRequest((req, res) => {
             {
               title: "Suscripción Premium",
               quantity: 1,
-              unit_price: 1,
+              unit_price: 2165,
             },
           ],
           payer: { email },

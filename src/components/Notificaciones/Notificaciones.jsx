@@ -9,6 +9,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+import { FaBell } from "react-icons/fa";
 
 const Notificaciones = () => {
   const [notificaciones, setNotificaciones] = useState([]);
@@ -48,42 +49,67 @@ const Notificaciones = () => {
 };
 
 
-  return (
-    <div className="dropdown me-3">
+ return (
+    <div className="dropdown me-3 position-relative">
       <button
-        className="btn btn-outline-warning dropdown-toggle"
+        className="btn btn-outline-warning rounded-circle position-relative"
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
+        style={{
+          width: "2.7rem",
+          height: "2.7rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}
       >
-        🔔{" "}
+        <FaBell />
         {notificaciones.length > 0 && (
-          <span className="badge bg-danger">{notificaciones.length}</span>
+          <span
+            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            style={{ fontSize: "0.65rem" }}
+          >
+            {notificaciones.length}
+          </span>
         )}
       </button>
+
       <ul
-          className="dropdown-menu dropdown-menu-end"
-          style={{ maxHeight: "300px", overflowY: "auto" }}
-        >
+        className="dropdown-menu shadow"
+        style={{
+          width: "310px",
+          maxHeight: "350px",
+          overflowY: "auto",
+          position: "absolute",
+          top: "100%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1050 // asegúrate que esté encima de otros elementos
+        }}
+      >
         {notificaciones.length === 0 ? (
-          <li className="dropdown-item text-muted">Sin notificaciones</li>
+          <li className="dropdown-item text-center text-muted small py-3">
+            🎉 ¡No hay notificaciones nuevas!
+          </li>
         ) : (
-          <div>
+          <>
             {notificaciones.map((n) => (
-              <li key={n.id} className="dropdown-item small">
-                {n.mensaje}
+              <li key={n.id} className="dropdown-item small d-flex align-items-start">
+                <span className="me-2 text-warning">🔔</span>
+                <span>{n.mensaje}</span>
               </li>
             ))}
             <li><hr className="dropdown-divider" /></li>
-            <li>
+            <li className="text-center pb-2">
               <button
-                className="dropdown-item text-center text-primary"
+                className="btn btn-sm btn-outline-primary"
                 onClick={marcarComoLeidas}
               >
                 ✅ Marcar todas como leídas
               </button>
             </li>
-          </div>
+          </>
         )}
       </ul>
     </div>
