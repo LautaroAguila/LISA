@@ -13,6 +13,9 @@ const ListBuy = () => {
     const [productos, setProductos] = useState([]);
     const [planUsuario, setPlanUsuario] = useState("gratis");
     const [loading, setLoading] = useState(true);
+    const [filtroTipo, setFiltroTipo] = useState("");
+    const [filtroMarca, setFiltroMarca] = useState("");
+    const [filtroProveedor, setFiltroProveedor] = useState("");
     const auth = getAuth();
     const navigate = useNavigate();
 
@@ -22,7 +25,6 @@ const ListBuy = () => {
                 const user = auth.currentUser;
                 if (!user) return;
 
-                // Obtener productos del usuario
                 const productosRef = collection(db, "users", user.uid, "productos");
                 const querySnapshot = await getDocs(productosRef);
                 const listaProductos = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -31,7 +33,6 @@ const ListBuy = () => {
                 );
                 setProductos(productosFiltrados);
 
-                // Obtener plan del usuario
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
                 if (userSnap.exists()) {
@@ -48,7 +49,17 @@ const ListBuy = () => {
         fetchData();
     }, [auth]);
 
-    const productosPorTipo = productos.reduce((acc, producto) => {
+    const filtrarProductos = () => {
+        return productos.filter(p =>
+            (filtroTipo === "" || p.tipo === filtroTipo) &&
+            (filtroMarca === "" || p.marca === filtroMarca) &&
+            (filtroProveedor === "" || p.proveedor === filtroProveedor)
+        );
+    };
+
+    const productosFiltrados = filtrarProductos();
+
+    const productosPorTipo = productosFiltrados.reduce((acc, producto) => {
         const tipo = producto.tipo || "Sin Categoría";
         if (!acc[tipo]) acc[tipo] = [];
         acc[tipo].push(producto);
@@ -66,12 +77,13 @@ const ListBuy = () => {
 
             autoTable(docPDF, {
                 startY,
-                head: [["Producto", "Cantidad Actual", "Stock Recomendado"]],
-                body: productosPorTipo[tipo].map(producto => [
-                    producto.nombre,
-                    producto.stock_actual ?? producto.cantidad,
-                    producto.stock_recomendable
-                ]),
+                head: [["Producto", "Actual", "Recomendado", "A Comprar"]],
+                body: productosPorTipo[tipo].map(p => {
+                    const actual = p.stock_actual ?? p.cantidad;
+                    const recomendado = p.stock_recomendable;
+                    const comprar = Math.max(recomendado - actual, 0);
+                    return [p.nombre, actual, recomendado, comprar];
+                }),
                 theme: "grid",
                 styles: { fontSize: 10 },
                 margin: { left: 14, right: 14 },
@@ -80,7 +92,10 @@ const ListBuy = () => {
             startY = docPDF.lastAutoTable.finalY + 10;
         });
 
-        docPDF.save("Lista_Compra.pdf");
+        // Agregar fecha actual al nombre del archivo
+        const hoy = new Date();
+        const fechaStr = hoy.toISOString().split("T")[0]; // formato YYYY-MM-DD
+        docPDF.save(`Lista_Compra_${fechaStr}.pdf`);
     };
 
     if (loading) return <><NavBar /><Spinner /></>;
@@ -97,52 +112,104 @@ const ListBuy = () => {
                     {productos.length === 0 ? (
                         <p className="text-center fs-5 mt-4 text-muted">No hay productos por comprar.</p>
                     ) : (
-                        <div className="table-responsive">
-                            {Object.keys(productosPorTipo).map((tipo) => (
-                                <div key={tipo} className="mb-5">
-                                    <h4 className="text-center section-subtitle border-bottom pb-2 mb-3">
-                                        {tipo}
-                                    </h4>
-                                    <table className="table table-light table-hover rounded overflow-hidden">
-                                        <thead className="table-dark">
-                                            <tr>
-                                                <th>🧾 Producto</th>
-                                                <th>📦 Cantidad Actual</th>
-                                                <th>🎯 Stock Recomendado</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {productosPorTipo[tipo].map((producto) => (
-                                                <tr key={producto.id}>
-                                                    <td>{producto.nombre}</td>
-                                                    <td>{producto.stock_actual ?? producto.cantidad}</td>
-                                                    <td>{producto.stock_recomendable}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                        <>
+                            {/* Filtros */}
+                            <div className="row mb-3 mt-4">
+                                <div className="col-md-4 mb-2">
+                                    <select className="form-select" value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}>
+                                        <option value="">Filtrar por Tipo</option>
+                                        {[...new Set(productos.map(p => p.tipo))].filter(Boolean).map(tipo => (
+                                            <option key={tipo} value={tipo}>{tipo}</option>
+                                        ))}
+                                    </select>
                                 </div>
-                            ))}
-                        </div>
-                    )}
+                                <div className="col-md-4 mb-2">
+                                    <select className="form-select" value={filtroMarca} onChange={e => setFiltroMarca(e.target.value)}>
+                                        <option value="">Filtrar por Marca</option>
+                                        {[...new Set(productos.map(p => p.marca))].filter(Boolean).map(marca => (
+                                            <option key={marca} value={marca}>{marca}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="col-md-4 mb-2">
+                                    <select className="form-select" value={filtroProveedor} onChange={e => setFiltroProveedor(e.target.value)}>
+                                        <option value="">Filtrar por Proveedor</option>
+                                        {[...new Set(productos.map(p => p.proveedor))].filter(Boolean).map(prov => (
+                                            <option key={prov} value={prov}>{prov}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
 
-                    {productos.length > 0 && (
-                        <div className="text-center mt-4">
-                            {planUsuario === "premium" ? (
-                                <button className="btn btn-success btn-lg shadow" onClick={descargarPDF}>
-                                    📥 Descargar PDF
-                                </button>
-                            ) : (
-                                <>
-                                    <button className="btn btn-secondary btn-lg shadow" disabled>
-                                        🔒 Solo disponible en plan Premium
+                            {(filtroTipo || filtroMarca || filtroProveedor) && (
+                                <div className="text-center mb-4">
+                                    <button
+                                        className="btn btn-outline-secondary"
+                                        onClick={() => {
+                                            setFiltroTipo("");
+                                            setFiltroMarca("");
+                                            setFiltroProveedor("");
+                                        }}
+                                    >
+                                        ❌ Quitar Filtros
                                     </button>
-                                    <p className="mt-2 text-muted">
-                                        Para descargar la lista en PDF, pasate al <strong>Plan Premium</strong> desde tu perfil.
-                                    </p>
-                                </>
+                                </div>
                             )}
-                        </div>
+
+                            {/* Tablas agrupadas */}
+                            <div className="table-responsive">
+                                {Object.keys(productosPorTipo).map((tipo) => (
+                                    <div key={tipo} className="mb-5">
+                                        <h4 className="text-center section-subtitle border-bottom pb-2 mb-3">
+                                            {tipo}
+                                        </h4>
+                                        <table className="table table-light table-hover rounded overflow-hidden">
+                                            <thead className="table-dark">
+                                                <tr>
+                                                    <th>🧾 Producto</th>
+                                                    <th>📦 Cantidad Actual</th>
+                                                    <th>🎯 Stock Recomendado</th>
+                                                    <th>🛍️ A Comprar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {productosPorTipo[tipo].map((producto) => {
+                                                    const actual = producto.stock_actual ?? producto.cantidad;
+                                                    const recomendado = producto.stock_recomendable;
+                                                    const comprar = Math.max(recomendado - actual, 0);
+                                                    return (
+                                                        <tr key={producto.id}>
+                                                            <td>{producto.nombre}</td>
+                                                            <td>{actual}</td>
+                                                            <td>{recomendado}</td>
+                                                            <td>{comprar}</td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Botón PDF */}
+                            <div className="text-center mt-4">
+                                {planUsuario === "premium" ? (
+                                    <button className="btn btn-success btn-lg shadow" onClick={descargarPDF}>
+                                        📥 Descargar PDF
+                                    </button>
+                                ) : (
+                                    <>
+                                        <button className="btn btn-secondary btn-lg shadow" disabled>
+                                            🔒 Solo disponible en plan Premium
+                                        </button>
+                                        <p className="mt-2 text-muted">
+                                            Para descargar la lista en PDF, pasate al <strong>Plan Premium</strong> desde tu perfil.
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                        </>
                     )}
                 </div>
             </div>
